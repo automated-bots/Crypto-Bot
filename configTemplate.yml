@@ -1,5 +1,5 @@
 exchange:
-  useCache: True # Put to False in production
+  use_cache: True # Put to False in production
   apiKey: "" # Alpha Vantage API Key
   symbol: "VIX" # The VIX Index
   # Note: NYSE market: 6,5 hours open = 390 min./5 min. interval = 78 data points (which will fit within the 100 latest data points)
@@ -7,7 +7,8 @@ exchange:
   outputsize: "compact" # Default: compact (100 latest data points), full (get the full-length of 20+ years historical data)
 
 settings:
-  loop_interval: 3600 # Twice a day?
+  cron_time: "0 15 12,16 * * 1-5" # Notation: Second-Minute-Hour-Day-Month-WeekDay. So, at 12:15:00 and 16:15:00 hours from Monday through Friday
+  cron_timezone: "America/New_York" # NYSE is in New York
   alerts: # Note: Lower checks on <, higher checks on >=
     extreme_low_threshold: 8 # VIX index is < 8%
     low_threshold: 11 # VIX index is < 11%

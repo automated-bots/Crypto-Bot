@@ -21,8 +21,7 @@ class Fetcher {
    */
   getData () {
     if (fs.existsSync('./' + this.cachedFile) &&
-      this.exchangeCfg.useCache) {
-      console.log('Info: Use cached file.')
+      this.exchangeCfg.use_cache) {
       const data = fs.readFileSync('./' + this.cachedFile, 'utf8')
       if (data) {
         return Promise.resolve(JSON.parse(data))
@@ -57,7 +56,7 @@ class Fetcher {
         parseFloat(timeseries[timestamp]['4. close']), // Close
         new Date(timestamp).getTime()) // Timestamp in ms since Epoch
     )
-    if (series && this.exchangeCfg.useCache) {
+    if (series && this.exchangeCfg.use_cache) {
       fs.writeFile('./' + this.cachedFile, JSON.stringify(series, null, 2), 'utf-8', (err) => {
         if (err) throw err
       })
