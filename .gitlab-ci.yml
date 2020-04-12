@@ -10,14 +10,14 @@ cache:
 lint:
   stage: test
   tags:
-  - test
+  - nodejs
   script:
   - npm run lint
 
 audit:
   stage: test
   tags:
-  - test
+    - nodejs
   script:
   - npm audit
 
