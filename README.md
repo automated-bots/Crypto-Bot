@@ -10,7 +10,7 @@ This bot will inform you via Telegram, when a certain threshold limit is reached
 Requirements
 ------------
 
-* [Node.js v10](https://nodejs.org/en/download/)
+* [Node.js](https://nodejs.org/en/download/)
 * npm
 
 Usage
