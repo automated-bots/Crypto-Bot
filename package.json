@@ -32,8 +32,11 @@
     "index",
     "bot",
     "VIX",
-    "telegram"
+    "telegram",
+    "stock",
+    "market",
+    "tracker"
   ],
   "author": "Melroy van den Berg <melroy@melroy.org>",
-  "license": "UNLICENSED"
+  "license": "MIT"
 }
