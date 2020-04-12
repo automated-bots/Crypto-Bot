@@ -12,8 +12,9 @@ class Process {
       alert: false,
       level: null,
       percentage: 0,
-      lowest_close_price: 0,
-      highest_close_price: 0,
+      latest_close_price: 0,
+      latest_time: 0,
+      all_points: false,
       dual_alert: {
         alert: false,
         level: null,
@@ -23,18 +24,23 @@ class Process {
   }
 
   /**
-   * Process the intraday (15 min) candle data
+   * Process the intraday (5 min) candle data,
+   * only process the latest day data points
    */
-  processData() {
-    // Calculate highest & lowest prices
-    const highPrices = this.data.map(data => data.high) // Use high price for highest calc
-    const highestPrice = Math.max(...highPrices)
-    const lowPrices = this.data.map(data => data.low) // Use low price for lowest calc
-    const lowestPrice = Math.min(...lowPrices)
+  processData () {
+    // NYSE Marker opening hours: 9:30 - 16:00 = 6.5 hours open = 390 min.
+    // Max data points = 390 min. / 5 .min interval = 78
+    const maxDataPoints = 78
 
-    const closePrices = this.data.map(data => data.close)
-    const lowestClosePrice = Math.min(...closePrices)
-    const highestClosePrice = Math.max(...closePrices)
+    const latestPoint = this.data[this.data.length - 1]
+    const startOfLastDayEpoch = new Date(new Date(latestPoint.time).toDateString()).getTime()
+    const today = this.data.filter(data => data.time >= startOfLastDayEpoch)
+
+    // Calculate highest & lowest prices
+    const highPrices = today.map(data => data.high) // Use high price for highest calc
+    const highestPrice = Math.max(...highPrices)
+    const lowPrices = today.map(data => data.low) // Use low price for lowest calc
+    const lowestPrice = Math.min(...lowPrices)
 
     if (highestPrice >= this.settings.alerts.extreme_high_threshold) {
       this.result.alert = true
@@ -52,9 +58,10 @@ class Process {
         this.result.level = this.levelEnum.EXTREME_LOW_LEVEL
         this.result.percentage = lowestPrice
       } else {
+        // Within the same day both a high threshold and low threshold was reached?
         this.result.dual_alert.alert = true
         this.result.dual_alert.level = this.levelEnum.EXTREME_LOW_LEVEL
-        this.result.dual_alert.percentage = lowestPrice  
+        this.result.dual_alert.percentage = lowestPrice
       }
     } else if (lowestPrice < this.settings.alerts.low_threshold) {
       if (!this.result.alert) {
@@ -62,14 +69,16 @@ class Process {
         this.result.level = this.levelEnum.LOW_LEVEL
         this.result.percentage = lowestPrice
       } else {
+        // Within the same day both a high threshold and low threshold was reached?
         this.result.dual_alert.alert = true
         this.result.dual_alert.level = this.levelEnum.LOW_LEVEL
-        this.result.dual_alert.percentage = lowestPrice  
+        this.result.dual_alert.percentage = lowestPrice
       }
     }
 
-    this.result.lowest_close_price = lowestClosePrice
-    this.result.highest_close_price = highestClosePrice
+    this.result.latest_close_price = latestPoint.close
+    this.result.latest_time = latestPoint.time
+    this.result.all_points = (today.length === maxDataPoints)
   }
 
   /**

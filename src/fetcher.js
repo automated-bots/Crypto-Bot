@@ -20,7 +20,7 @@ class Fetcher {
    * Get historical information from Alpha Vantage API
    */
   getData () {
-    if (fs.existsSync('./' + this.cachedFile) &&      
+    if (fs.existsSync('./' + this.cachedFile) &&
       this.exchangeCfg.useCache) {
       console.log('Info: Use cached file.')
       const data = fs.readFileSync('./' + this.cachedFile, 'utf8')
@@ -38,9 +38,9 @@ class Fetcher {
           apikey: this.exchangeCfg.apiKey
         }
       })
-      .then(response => response.data['Time Series (' + this.exchangeCfg.intraday_interval + ')'])
-      .then(timeseries => this.processAlphaVantageSeries(timeseries))
-      .catch(error => Promise.reject(error))
+        .then(response => response.data['Time Series (' + this.exchangeCfg.intraday_interval + ')'])
+        .then(timeseries => this.processAlphaVantageSeries(timeseries))
+        .catch(error => Promise.reject(error))
     }
   }
 
@@ -49,7 +49,7 @@ class Fetcher {
    * @param {Array} timeseries - Time-series candle data
    */
   processAlphaVantageSeries (timeseries) {
-    const series = Object.keys(timeseries).reverse().map(timestamp => 
+    const series = Object.keys(timeseries).reverse().map(timestamp =>
       Candle.createIndex(
         parseFloat(timeseries[timestamp]['1. open']), // Open
         parseFloat(timeseries[timestamp]['2. high']), // High
