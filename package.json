@@ -1,0 +1,38 @@
+{
+  "name": "index-bot",
+  "version": "1.0.0",
+  "description": "VIX Index bot notifier",
+  "main": "src/index.js",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "yaml": "^1.8.3"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^13.0.1",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.0"
+  },
+  "scripts": {
+    "start": "node .",
+    "memory": "node --expose-gc --inspect .",
+    "lint": "eslint src/ --ext .js",
+    "fix": "eslint src/ --ext .js --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.melroy.org:melroy/index-bot.git"
+  },
+  "keywords": [
+    "index",
+    "bot",
+    "VIX",
+    "telegram"
+  ],
+  "author": "Melroy van den Berg <melroy@melroy.org>",
+  "license": "UNLICENSED"
+}

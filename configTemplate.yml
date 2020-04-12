@@ -1,0 +1,14 @@
+exchange:
+  useCache: True # Put to False in production
+  apiKey: "8HKXMPKWRR2X6O84" # Alpha Vantage API Key
+  symbol: "VIX" # The VIX Index
+  intraday_interval: "15min" # Other options are: 1min, 5min, 15min, 30min, 60min
+  outputsize: "compact" # Default: compact (100 latest data points), full (get the full-length of 20+ years historical data)
+
+settings:
+  loop_interval: 3600 # Once every day?
+  alerts: # Note: Lower checks on <, higher checks on >=
+    extreme_low_threshold: 8 # VIX index is < 8%
+    low_threshold: 11 # VIX index is < 11%
+    high_threshold: 40 # VIX index is >= 40%
+    extreme_high_threshold: 60 # VIX index is >= 60%
