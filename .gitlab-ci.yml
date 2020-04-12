@@ -1,0 +1,23 @@
+before_script:
+  - npm install
+
+cache:
+  key: "$CI_PIPELINE_ID"
+  untracked: true
+  paths:
+  - node_modules
+
+lint:
+  stage: test
+  tags:
+  - test
+  script:
+  - npm run lint
+
+audit:
+  stage: test
+  tags:
+  - test
+  script:
+  - npm audit
+
