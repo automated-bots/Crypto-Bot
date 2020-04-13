@@ -1,3 +1,7 @@
+// NTBA = node-telegram-bot-api fixes
+process.env['NTBA_FIX_319'] = 1
+process.env['NTBA_FIX_350'] = 1
+
 const express = require('express')
 const cors = require('cors')
 const fs = require('fs')
@@ -5,6 +9,8 @@ const YAML = require('yaml')
 const Fetcher = require('./fetcher')
 const Process = require('./process')
 const CronJob = require('cron').CronJob
+const TelegramBot = require('node-telegram-bot-api')
+const Communicate = require('./communicate')
 
 const app = express()
 app.use(cors())
@@ -22,23 +28,35 @@ if (cfg.exchange.use_cache) {
 }
 console.log('INFO: Cron time: \'' + cfg.settings.cron_time + '\' with timezone: ' + cfg.settings.cron_timezone)
 
-// TODO: https://github.com/yagop/node-telegram-bot-api/blob/master/examples/webhook/express.js
-app.get('/', (req, res) => res.send('(VIX) Index bot v1.0.0'))
-app.listen(port, () => console.log(`INFO: VIX Bot is running on port ${port}!`))
+const bot = new TelegramBot(cfg.settings.telegram_bot_token)
+// Informs Telegram servers of the new webhook
+bot.setWebHook(`${cfg.settings.telegram_public_url}/bot/${cfg.settings.telegram_bot_token}`)
 
-// TODO: Only report on changes in levels (don't spam muliple times a day/over days)
+app.get('/', (req, res) => res.send('(VIX) Index bot v1.0.0'))
+// We are receiving updates at the route below
+app.post(`/bot/${cfg.settings.telegram_bot_token}`, (req, res) => {
+  app.get('telegram_bot').processUpdate(req.body)
+  res.sendStatus(200)
+})
+app.listen(port, () => {
+  console.log(`INFO: VIX Bot is running on port ${port}!`)
+})
+
+const fetcher = new Fetcher(cfg.exchange)
+const comm = new Communicate(cfg.settings, bot)
 
 /**
  * Triggers on cron job
  */
 function onTick () {
-  // Get market data
-  const fetcher = new Fetcher(cfg.exchange)
+  // Get market data points
   fetcher.getData().then(data => {
+    // Process the data points
     const process = new Process(cfg.settings, data)
     process.processData()
+    // Get the result and send it to the communicate class
     const result = process.getResult()
-    console.log('Result ' + JSON.stringify(result))
+    comm.send(result)
   })
     .catch(error => {
       console.error('Error: Something went wrong during getting or processing the data')
@@ -50,6 +68,7 @@ function onTick () {
     })
 }
 
+// Cron job that triggers the onTick() function repeatedly
 const job = new CronJob(cfg.settings.cron_time, onTick, null, false, cfg.settings.cron_timezone)
 job.start()
 console.log('INFO: Cron triggers next times (shows only upcoming 6 dates):\n - ' + job.nextDates(6).join('\n - '))

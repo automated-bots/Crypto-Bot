@@ -1,23 +1,19 @@
+const AlertLevels = require('./alertLevelsEnum')
+
 class Process {
   constructor (settings, data) {
     this.settings = settings
     this.data = data
-    this.levelEnum = Object.freeze({
-      EXTREME_LOW_LEVEL: 1,
-      LOW_LEVEL: 2,
-      HIGH_LEVEL: 3,
-      EXTREME_HIGH_LEVEL: 4
-    })
     this.result = {
       alert: false,
-      level: null,
+      level: AlertLevels.NO_ALERT,
       percentage: 0,
       latest_close_price: 0,
       latest_time: 0,
       all_points: false,
       dual_alert: {
         alert: false,
-        level: null,
+        level: AlertLevels.NO_ALERT,
         percentage: 0
       }
     }
@@ -44,34 +40,34 @@ class Process {
 
     if (highestPrice >= this.settings.alerts.extreme_high_threshold) {
       this.result.alert = true
-      this.result.level = this.levelEnum.EXTREME_HIGH_LEVEL
+      this.result.level = AlertLevels.EXTREME_HIGH_LEVEL
       this.result.percentage = highestPrice
     } else if (highestPrice >= this.settings.alerts.high_threshold) {
       this.result.alert = true
-      this.result.level = this.levelEnum.HIGH_LEVEL
+      this.result.level = AlertLevels.HIGH_LEVEL
       this.result.percentage = highestPrice
     }
 
     if (lowestPrice < this.settings.alerts.extreme_low_threshold) {
       if (!this.result.alert) {
         this.result.alert = true
-        this.result.level = this.levelEnum.EXTREME_LOW_LEVEL
+        this.result.level = AlertLevels.EXTREME_LOW_LEVEL
         this.result.percentage = lowestPrice
       } else {
         // Within the same day both a high threshold and low threshold was reached?
         this.result.dual_alert.alert = true
-        this.result.dual_alert.level = this.levelEnum.EXTREME_LOW_LEVEL
+        this.result.dual_alert.level = AlertLevels.EXTREME_LOW_LEVEL
         this.result.dual_alert.percentage = lowestPrice
       }
     } else if (lowestPrice < this.settings.alerts.low_threshold) {
       if (!this.result.alert) {
         this.result.alert = true
-        this.result.level = this.levelEnum.LOW_LEVEL
+        this.result.level = AlertLevels.LOW_LEVEL
         this.result.percentage = lowestPrice
       } else {
         // Within the same day both a high threshold and low threshold was reached?
         this.result.dual_alert.alert = true
-        this.result.dual_alert.level = this.levelEnum.LOW_LEVEL
+        this.result.dual_alert.level = AlertLevels.LOW_LEVEL
         this.result.dual_alert.percentage = lowestPrice
       }
     }

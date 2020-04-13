@@ -7,6 +7,9 @@ exchange:
   outputsize: "compact" # Default: compact (100 latest data points), full (get the full-length of 20+ years historical data)
 
 settings:
+  telegram_bot_token: "" # Telegram token you receive from @BotFather
+  telegram_public_url: "https://" # Telegram public URL for Webhook
+  telegram_chat_id: "@" # Telegram chat ID to send to (eg. @channel_name)
   cron_time: "0 15 12,16 * * 1-5" # Notation: Second-Minute-Hour-Day-Month-WeekDay. So, at 12:15:00 and 16:15:00 hours from Monday through Friday
   cron_timezone: "America/New_York" # NYSE is in New York
   alerts: # Note: Lower checks on <, higher checks on >=

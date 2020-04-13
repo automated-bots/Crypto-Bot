@@ -19,6 +19,6 @@ Usage
 Follow the steps:
 
 1. Copy the config template to `config.yml`: `cp configTemplate.yml config.yml`
-2. Adjust the configuration settings/API key
-3. Install depedencies (once) via: `npm install`
+2. Adjust the configuration settings (optionally), webhook domain and API keys
+3. Install depedencies via: `npm install` (once needed)
 4. Start the bot using: `npm start`
