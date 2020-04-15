@@ -35,7 +35,7 @@ bot.setWebHook(`${cfg.settings.telegram_public_url}/bot/${cfg.settings.telegram_
 app.get('/', (req, res) => res.send('(VIX) Index bot v1.0.0'))
 // We are receiving updates at the route below
 app.post(`/bot/${cfg.settings.telegram_bot_token}`, (req, res) => {
-  app.get('telegram_bot').processUpdate(req.body)
+  bot.processUpdate(req.body)
   res.sendStatus(200)
 })
 app.listen(port, () => {
