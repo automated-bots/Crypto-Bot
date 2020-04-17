@@ -42,8 +42,10 @@ class Communicate {
         // Set current level as previous
         this.previousVIXAlertLevel = result.vix.level
       }
-    } else {
-      // Back to normal: curently no alert and still a change in alert level (with respect to previous alert level)
+    }
+
+    // Back to normal: curently no alert and still a change in alert level (with respect to previous alert level)
+    if (result.vix.level === AlertLevels.NO_ALERT) {
       if (this.previousVIXAlertLevel !== result.vix.level) {
         this.sendTelegramMessage(message)
       }
