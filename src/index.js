@@ -7,7 +7,7 @@ const cors = require('cors')
 const fs = require('fs')
 const YAML = require('yaml')
 const Fetcher = require('./fetcher')
-const Process = require('./process')
+const DataProcessor = require('./dataProcessor')
 const CronJob = require('cron').CronJob
 const TelegramBot = require('node-telegram-bot-api')
 const Communicate = require('./communicate')
@@ -42,7 +42,9 @@ app.listen(port, () => {
   console.log(`INFO: VIX Bot is running on port ${port}!`)
 })
 
+// Create API Fetcher, data process and communication instances
 const fetcher = new Fetcher(cfg.exchange)
+const dataProcessor = new DataProcessor(cfg.settings, cfg.indicators)
 const comm = new Communicate(cfg.settings, bot)
 
 /**
@@ -50,13 +52,12 @@ const comm = new Communicate(cfg.settings, bot)
  */
 function onTick () {
   // Get market data points
-  fetcher.getData().then(data => {
-    // Process the data points
-    const process = new Process(cfg.settings, data)
-    process.processData()
+  fetcher.getData().then(vixData => {
+    dataProcessor.process(vixData)
     // Get the result and send it to the communicate class
-    const result = process.getResult()
-    comm.send(result)
+    comm.send(dataProcessor.getResult())
+    // Restore to defaults
+    dataProcessor.resetResult()
   })
     .catch(error => {
       console.error('Error: Something went wrong during getting or processing the data')

@@ -12,41 +12,42 @@ class Communicate {
 
   /**
    * Send message to Telegram channel (only when needed)
-   * @param {Object} result - Result from process class
+   * @param {Object} result - result from processor class
    */
   send (result) {
     let message = '*Stock Alert* -- ^VIX ticker changed alert level: '
     // Inform the user regarding the change in alert level
-    message += this.vixAlertToString(result.level)
+    message += this.vixAlertToString(result.vix.level)
+    console.log(result)
 
-    if (result.alert && result.level !== AlertLevels.NO_ALERT) {
-      if (this.previousAlertLevel !== result.level) {
+    if (result.vix.alert && result.vix.level !== AlertLevels.NO_ALERT) {
+      if (this.previousAlertLevel !== result.vix.level) {
         message += '\n\n'
-        const date = new Date(result.latest_time)
+        const date = new Date(result.vix.latest_time)
         const dateString = date.getFullYear() + '-' +
           this.appendLeadingZeroes(date.getMonth() + 1) + '-' +
           this.appendLeadingZeroes(date.getDate()) + ' ' +
           this.appendLeadingZeroes(date.getHours()) + ':' +
           this.appendLeadingZeroes(date.getMinutes())
-        message += `CBOE Volatility Index (VIX): *${result.percentage}%*. Latest close: ${result.latest_close_price}. Latest date: ${dateString}.`
-        if (result.all_points) {
+        message += `CBOE Volatility Index (VIX): *${result.vix.percentage}%*. Latest close: ${result.vix.latest_close_price}. Latest date: ${dateString}.`
+        if (result.vix.all_points) {
           message += ' _Market is closed now._'
         }
         this.sendTelegramMessage(message)
 
         // Process dual-alert (if applicable)
-        if (result.dual_alert.alert) {
+        if (result.vix.dual_alert.alert) {
           let dualMessage = '*Stock Alert* -- VIX ticker changed twice the alert level within a day: '
-          dualMessage += this.vixAlertToString(result.dual_alert.level) + '!\n'
-          dualMessage += `CBOE Volatility Index (^VIX): *${result.dual_alert.percentage}%*`
+          dualMessage += this.vixAlertToString(result.vix.dual_alert.level) + '!\n'
+          dualMessage += `CBOE Volatility Index (^VIX): *${result.vix.dual_alert.percentage}%*`
           this.sendTelegramMessage(dualMessage)
         }
         // Set current level as previous
-        this.previousAlertLevel = result.level
+        this.previousAlertLevel = result.vix.level
       }
     } else {
       // Back to normal: curently no alert and still a change in alert level (with respect to previous alert level)
-      if (this.previousAlertLevel !== result.level) {
+      if (this.previousAlertLevel !== result.vix.level) {
         this.sendTelegramMessage(message)
       }
     }
@@ -56,6 +57,7 @@ class Communicate {
    * Helper method for sending the message to Telegram bot
    */
   sendTelegramMessage (message) {
+    console.log('msg: ' + message)
     this.bot.sendMessage(this.settings.telegram_chat_id, message, this.sendMessageOptions)
   }
 
@@ -66,15 +68,15 @@ class Communicate {
   vixAlertToString (level) {
     switch (level) {
       case AlertLevels.NO_ALERT:
-        return `^VIX returned to normal levels (>= ${this.settings.alerts.low_threshold}% and < ${this.settings.alerts.high_threshold}%). No alert.`
+        return `^VIX returned to normal levels (>= ${this.settings.alerts.VIX.low_threshold}% and < ${this.settings.alerts.VIX.high_threshold}%). No alert.`
       case AlertLevels.EXTREME_LOW_LEVEL:
-        return `Extreme low limit threshold (${this.settings.alerts.extreme_low_threshold}%) of ^VIX has been reached.`
+        return `Extreme low limit threshold (${this.settings.alerts.VIX.extreme_low_threshold}%) of ^VIX has been reached.`
       case AlertLevels.LOW_LEVEL:
-        return `Low limit threshold (${this.settings.alerts.low_threshold}%) of ^VIX has been reached.`
+        return `Low limit threshold (${this.settings.alerts.VIX.low_threshold}%) of ^VIX has been reached.`
       case AlertLevels.HIGH_LEVEL:
-        return `High limit threshold (${this.settings.alerts.high_threshold}%) of ^VIX has been reached.`
+        return `High limit threshold (${this.settings.alerts.VIX.high_threshold}%) of ^VIX has been reached.`
       case AlertLevels.EXTREME_HIGH_LEVEL:
-        return `Extreme high limit threshold (${this.settings.alerts.extreme_high_threshold}%) of ^VIX has been reached.`
+        return `Extreme high limit threshold (${this.settings.alerts.VIX.extreme_high_threshold}%) of ^VIX has been reached.`
       default:
         return 'Error: Unknown alert level?'
     }
