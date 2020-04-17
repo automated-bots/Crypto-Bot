@@ -1,4 +1,5 @@
 const AlertLevels = require('./alertLevelsEnum')
+const Util = require('./util')
 
 class Communicate {
   constructor (settings, bot) {
@@ -23,12 +24,7 @@ class Communicate {
     if (result.vix.alert && result.vix.level !== AlertLevels.NO_ALERT) {
       if (this.previousAlertLevel !== result.vix.level) {
         message += '\n\n'
-        const date = new Date(result.vix.latest_time)
-        const dateString = date.getFullYear() + '-' +
-          this.appendLeadingZeroes(date.getMonth() + 1) + '-' +
-          this.appendLeadingZeroes(date.getDate()) + ' ' +
-          this.appendLeadingZeroes(date.getHours()) + ':' +
-          this.appendLeadingZeroes(date.getMinutes())
+        const dateString = Util.dateToString(result.vix.latest_time)
         message += `CBOE Volatility Index (VIX): *${result.vix.percentage}%*. Latest close: ${result.vix.latest_close_price}. Latest date: ${dateString}.`
         if (result.vix.all_points) {
           message += ' _Market is closed now._'
@@ -81,13 +77,6 @@ class Communicate {
       default:
         return 'Error: Unknown alert level?'
     }
-  }
-
-  appendLeadingZeroes (n) {
-    if (n <= 9) {
-      return '0' + n
-    }
-    return n
   }
 }
 

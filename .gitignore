@@ -1,8 +1,7 @@
-# Ignore cache
+# Ignore cache, config and debug files
 cachedData.json
-
-# Ignore config
 config.yml
+debug.csv
 
 # Logs
 logs

@@ -1,5 +1,8 @@
 const AlertLevels = require('./alertLevelsEnum')
 const PPO = require('./indicators/ppo')
+const Util = require('./util')
+const csv = require('fast-csv')
+const fs = require('fs')
 
 class DataProcessor {
   constructor (settings, indicatorsConfig) {
@@ -9,6 +12,9 @@ class DataProcessor {
     // or just save what we need for now: previous PPO histogram
     this.previousPPO = null
     this.resetResult()
+
+    // tmp!
+    this.csvData = []
   }
 
   /**
@@ -26,8 +32,6 @@ class DataProcessor {
     const todayPoints = vixData.filter(data => data.time >= startOfLastDayEpoch)
 
     // Process PPO indicator using S&P 500 data points
-    let ppoCrossedBull = false
-    let ppoCrossedBear = false
     let tick
     // TODO: use S&P data points instead of todays Vix data
     for (tick of todayPoints) {
@@ -36,28 +40,50 @@ class DataProcessor {
 
       // Check for MACD crosses
       const ppo = this.ppo.getResult()
+      this.csvData.push({
+        date: Util.dateToString(new Date(tick.time)),
+        close: tick.close,
+        ppo: ppo.ppo,
+        signal: ppo.signal,
+        hist: ppo.hist
+      })
       if (this.previousPPO !== null) {
-        if (!ppoCrossedBull) {
-          ppoCrossedBull = Math.sign(this.previousPPO.hist) === -1 &&
-            (Math.sign(ppo.hist) === 1 || Math.sign(ppo.hist) === 0)
+        // Fill-in the PPO (MACD) results
+        const bullish = Math.sign(this.previousPPO.hist) === -1 &&
+        (Math.sign(ppo.hist) === 1 || Math.sign(ppo.hist) === 0)
+        if (bullish) {
+          this.result.crosses.push({
+            type: 'bullish',
+            close: tick.close,
+            ppo: ppo.ppo,
+            signal: ppo.signal,
+            time: new Date(tick.time)
+          })
         }
-        if (!ppoCrossedBear) {
-          ppoCrossedBear = (Math.sign(this.previousPPO.hist) === 0 || Math.sign(this.previousPPO.hist) === 1) &&
-            (Math.sign(ppo.hist) === -1)
+        const bearish = (Math.sign(this.previousPPO.hist) === 0 || Math.sign(this.previousPPO.hist) === 1) &&
+        (Math.sign(ppo.hist) === -1)
+        if (bearish) {
+          this.result.crosses.push({
+            type: 'bearish',
+            close: tick.close,
+            ppo: ppo.ppo,
+            signal: ppo.signal,
+            time: new Date(tick.time)
+          })
         }
       }
       this.previousPPO = ppo
     }
+
+    // Dump verbose data to CSV file
+    const ws = fs.createWriteStream('debug.csv')
+    csv.write(this.csvData, { headers: true }).pipe(ws)
 
     // Calculate highest & lowest prices from VIX index
     const highPrices = todayPoints.map(data => data.high) // Use high price for highest calc
     const highestPrice = Math.max(...highPrices)
     const lowPrices = todayPoints.map(data => data.low) // Use low price for lowest calc
     const lowestPrice = Math.min(...lowPrices)
-
-    // Fill-in the PPO (MACD) results
-    this.result.ppo.bull = ppoCrossedBull
-    this.result.ppo.bear = ppoCrossedBear
 
     // Fill-in the VIX results
     if (highestPrice >= this.settings.alerts.VIX.extreme_high_threshold) {
@@ -95,7 +121,7 @@ class DataProcessor {
     }
 
     this.result.vix.latest_close_price = latestVIXPoint.close
-    this.result.vix.latest_time = latestVIXPoint.time
+    this.result.vix.latest_time = new Date(latestVIXPoint.time)
     this.result.vix.all_points = (todayPoints.length === maxDataPoints)
   }
 
@@ -121,10 +147,7 @@ class DataProcessor {
           percentage: 0
         }
       },
-      ppo: {
-        bull: false,
-        bear: false
-      }
+      crosses: []
     }
   }
 }
