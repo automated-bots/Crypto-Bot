@@ -3,6 +3,9 @@ cachedData.json
 config.yml
 debug.csv
 
+# LibreOffice locks
+.~lock.*#
+
 # Logs
 logs
 *.log

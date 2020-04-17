@@ -5,7 +5,8 @@ class Communicate {
   constructor (settings, bot) {
     this.settings = settings
     this.bot = bot
-    this.previousAlertLevel = AlertLevels.NO_ALERT
+    // Don't spam the channel, save the previous alert to compare for changes
+    this.previousVIXAlertLevel = AlertLevels.NO_ALERT
     this.sendMessageOptions = { parse_mode: 'markdown', disable_web_page_preview: false }
     // Notify channel about Bot booting-up
     this.sendTelegramMessage('Starting-up Bot...')
@@ -19,10 +20,10 @@ class Communicate {
     let message = '*Stock Alert* -- ^VIX ticker changed alert level: '
     // Inform the user regarding the change in alert level
     message += this.vixAlertToString(result.vix.level)
-    console.log(result)
+    // console.log(result)
 
     if (result.vix.alert && result.vix.level !== AlertLevels.NO_ALERT) {
-      if (this.previousAlertLevel !== result.vix.level) {
+      if (this.previousVIXAlertLevel !== result.vix.level) {
         message += '\n\n'
         const dateString = Util.dateToString(result.vix.latest_time)
         message += `CBOE Volatility Index (VIX): *${result.vix.percentage}%*. Latest close: ${result.vix.latest_close_price}. Latest date: ${dateString}.`
@@ -39,11 +40,11 @@ class Communicate {
           this.sendTelegramMessage(dualMessage)
         }
         // Set current level as previous
-        this.previousAlertLevel = result.vix.level
+        this.previousVIXAlertLevel = result.vix.level
       }
     } else {
       // Back to normal: curently no alert and still a change in alert level (with respect to previous alert level)
-      if (this.previousAlertLevel !== result.vix.level) {
+      if (this.previousVIXAlertLevel !== result.vix.level) {
         this.sendTelegramMessage(message)
       }
     }
