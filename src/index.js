@@ -30,7 +30,9 @@ console.log('INFO: Cron time: \'' + cfg.settings.cron_time + '\' with timezone: 
 
 const bot = new TelegramBot(cfg.settings.telegram_bot_token)
 // Informs Telegram servers of the new webhook
-bot.setWebHook(`${cfg.settings.telegram_public_url}/bot/${cfg.settings.telegram_bot_token}`)
+bot.setWebHook(`${cfg.settings.telegram_public_url}/bot/${cfg.settings.telegram_bot_token}`).catch(error => {
+  console.log('ERROR: Telegram webhook setup failed: ' + error.message)
+})
 
 app.get('/', (req, res) => res.send('(VIX) Index bot v1.0.0'))
 // We are receiving updates at the route below

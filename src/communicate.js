@@ -57,8 +57,9 @@ class Communicate {
    * Helper method for sending the message to Telegram bot
    */
   sendTelegramMessage (message) {
-    console.log('msg: ' + message)
-    this.bot.sendMessage(this.settings.telegram_chat_id, message, this.sendMessageOptions)
+    this.bot.sendMessage(this.settings.telegram_chat_id, message, this.sendMessageOptions).catch(error => {
+      console.log('ERROR: Could not send Telegram message: "' + message + '", due to error: ' + error.message)
+    })
   }
 
   /**
