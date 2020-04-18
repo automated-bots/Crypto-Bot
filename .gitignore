@@ -1,5 +1,5 @@
 # Ignore cache, config and debug files
-cachedData.json
+/cachedData.json
 config.yml
 debug.csv
 
