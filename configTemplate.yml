@@ -10,7 +10,7 @@ telegram_settings:
 tickers:
   volatility:
     params:
-      symbol: "VIX" # The VIX Index
+      symbol: "^VIX" # The CBOE Volatility Index
       function: "TIME_SERIES_INTRADAY" # Intraday time series (within a day period, see intraday_interval)
       # Note: NYSE market: 6,5 hours open = 390 min./5 min. interval = 78 data points (which will fit within the 100 latest data points)
       intraday_interval: "5min" # Other options are: 1min, 5min, 15min, 30min, 60min
@@ -24,7 +24,7 @@ tickers:
       extreme_high_threshold: 60 # VIX index is >= 60%
   stockmarket:
     params:
-      symbol: "GSPC" # The GSPC Index
+      symbol: "^GSPC" # The S&P 500 Index
       function: "TIME_SERIES_WEEKLY" # Weekly time series
     cron_time: "*/5 * * * * *" # Notation: Second-Minute-Hour-Day-Month-WeekDay. So, at 12:15:00 and 16:15:00 hours from Monday through Friday
     cron_timezone: "America/New_York" # NYSE is in New York
