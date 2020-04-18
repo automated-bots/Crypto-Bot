@@ -6,8 +6,8 @@ const Candle = require('./candle')
  * History fetcher to get/load historical data
  */
 class Fetcher {
-  constructor (exchangeCfg) {
-    this.exchangeCfg = exchangeCfg
+  constructor (exchangeSettings) {
+    this.exchangeSettings = exchangeSettings
     this.cachedFile = 'cachedData.json'
     // Alpha Vantage API HTTP Client
     this.api = axios.create({
@@ -18,10 +18,13 @@ class Fetcher {
 
   /**
    * Get historical information from Alpha Vantage API
+   *
+   * @param {Object} exchangeParams Params dictionary object containing: 'function', 'symbol' and
+   *  optionally 'intraday_interval' and 'outputsize' keys.
    */
-  getData () {
+  getData (exchangeParams) {
     if (fs.existsSync('./' + this.cachedFile) &&
-      this.exchangeCfg.use_cache) {
+      this.exchangeSettings.use_cache) {
       const data = fs.readFileSync('./' + this.cachedFile, 'utf8')
       if (data) {
         return Promise.resolve(JSON.parse(data))
@@ -29,23 +32,36 @@ class Fetcher {
         throw new Error('Empty data in history file.')
       }
     } else {
+      const params = {
+        function: exchangeParams.function,
+        symbol: exchangeParams.symbol,
+        apikey: this.exchangeSettings.apiKey
+      }
+      let dataKey = ''
+      switch (exchangeParams.function) {
+        case 'TIME_SERIES_INTRADAY':
+          params.interval = exchangeParams.intraday_interval
+          params.outputsize = exchangeParams.outputsize
+          dataKey = 'Time Series (' + exchangeParams.intraday_interval + ')'
+          break
+        case 'TIME_SERIES_WEEKLY':
+          dataKey = 'Time Series (Weekly)'
+          break
+        default:
+          throw new Error('Invalid exchange function parameter.')
+      }
       return this.api.get('/query', {
-        params: {
-          function: 'TIME_SERIES_INTRADAY',
-          symbol: this.exchangeCfg.symbol,
-          interval: this.exchangeCfg.intraday_interval,
-          apikey: this.exchangeCfg.apiKey
-        }
+        params: params
       })
-        .then(response => response.data['Time Series (' + this.exchangeCfg.intraday_interval + ')'])
+        .then(response => response.data[dataKey])
         .then(timeseries => this.processAlphaVantageSeries(timeseries))
         .catch(error => Promise.reject(error))
     }
   }
 
   /**
-   * Helper function for processing Alpha Vantage time-series
-   * @param {Array} timeseries - Time-series candle data
+   * Helper function for processing Alpha Vantage index time-series
+   * @param {Array} timeseries Time-series candle data
    */
   processAlphaVantageSeries (timeseries) {
     const series = Object.keys(timeseries).reverse().map(timestamp =>
@@ -56,7 +72,7 @@ class Fetcher {
         parseFloat(timeseries[timestamp]['4. close']), // Close
         new Date(timestamp).getTime()) // Timestamp in ms since Epoch
     )
-    if (series && this.exchangeCfg.use_cache) {
+    if (series && this.exchangeSettings.use_cache) {
       fs.writeFile('./' + this.cachedFile, JSON.stringify(series, null, 2), 'utf-8', (err) => {
         if (err) throw err
       })

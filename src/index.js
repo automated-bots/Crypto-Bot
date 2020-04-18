@@ -23,39 +23,41 @@ const cfg = YAML.parse(fs.readFileSync('config.yml', 'utf8').toString())
 if (!cfg) {
   throw new Error('Please create a config.yml file.')
 }
-if (cfg.exchange.use_cache) {
+if (cfg.exchange_settings.use_cache) {
   console.log('INFO: Cached market data file is used (if possible).')
 }
-console.log('INFO: Cron time: \'' + cfg.settings.cron_time + '\' with timezone: ' + cfg.settings.cron_timezone)
 
-const bot = new TelegramBot(cfg.settings.telegram_bot_token)
+console.log('INFO: ^VIX Cron time: \'' + cfg.tickers.volatility.cron_time + '\' with timezone: ' + cfg.tickers.volatility.cron_timezone)
+console.log('INFO: ^GSPC Cron time: \'' + cfg.tickers.stockmarket.cron_time + '\' with timezone: ' + cfg.tickers.stockmarket.cron_timezone)
+
+const bot = new TelegramBot(cfg.telegram_settings.bot_token)
 // Informs Telegram servers of the new webhook
-bot.setWebHook(`${cfg.settings.telegram_public_url}/bot/${cfg.settings.telegram_bot_token}`).catch(error => {
+bot.setWebHook(`${cfg.telegram_settings.public_url}/bot/${cfg.telegram_settings.bot_token}`).catch(error => {
   console.log('ERROR: Telegram webhook setup failed: ' + error.message)
 })
 
 app.get('/', (req, res) => res.send('(VIX) Index bot v1.0.0'))
 // We are receiving updates at the route below
-app.post(`/bot/${cfg.settings.telegram_bot_token}`, (req, res) => {
+app.post(`/bot/${cfg.telegram_settings.bot_token}`, (req, res) => {
   bot.processUpdate(req.body)
   res.sendStatus(200)
 })
 app.listen(port, () => {
-  console.log(`INFO: VIX Bot is running on port ${port}!`)
+  console.log(`INFO: Market Alert Bot is running on port ${port}!`)
 })
 
 // Create API Fetcher, data process and communication instances
-const fetcher = new Fetcher(cfg.exchange)
-const dataProcessor = new DataProcessor(cfg.settings, cfg.indicators)
-const comm = new Communicate(cfg.settings, bot)
+const fetcher = new Fetcher(cfg.exchange_settings)
+const dataProcessor = new DataProcessor(cfg.tickers.volatility.alerts, cfg.tickers.stockmarket.indicators)
+const comm = new Communicate(cfg.tickers.volatility.alerts, bot, cfg.telegram_settings.chat_id)
 
 /**
  * Triggers on cron job
  */
-function onTick () {
+function onTickVolatility () {
   // Get market data points
-  fetcher.getData().then(vixData => {
-    dataProcessor.process(vixData)
+  fetcher.getData(cfg.tickers.volatility.params).then(vixData => {
+    dataProcessor.processVolatility(vixData)
     // Get the result and send it to the communicate class
     comm.send(dataProcessor.getResult())
     // Restore to defaults
@@ -71,7 +73,7 @@ function onTick () {
     })
 }
 
-// Cron job that triggers the onTick() function repeatedly
-const job = new CronJob(cfg.settings.cron_time, onTick, null, false, cfg.settings.cron_timezone)
+// Cron job that triggers the onTickVolatility() function repeatedly
+const job = new CronJob(cfg.tickers.volatility.cron_time, onTickVolatility, null, false, cfg.tickers.volatility.cron_timezone)
 job.start()
 console.log('INFO: Cron triggers next times (shows only upcoming 6 dates):\n - ' + job.nextDates(6).join('\n - '))
