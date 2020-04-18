@@ -8,7 +8,6 @@ const Candle = require('./candle')
 class Fetcher {
   constructor (exchangeSettings) {
     this.exchangeSettings = exchangeSettings
-    this.cachedFile = 'cachedData.json'
     // Alpha Vantage API HTTP Client
     this.api = axios.create({
       baseURL: 'https://www.alphavantage.co',
@@ -23,9 +22,14 @@ class Fetcher {
    *  optionally 'intraday_interval' and 'outputsize' keys.
    */
   getData (exchangeParams) {
-    if (fs.existsSync('./' + this.cachedFile) &&
+    let cacheFile = 'cachedData.json'
+    if (exchangeParams.function === 'TIME_SERIES_WEEKLY') {
+      cacheFile = 'cachedDataWeekly.json'
+    }
+
+    if (fs.existsSync('./' + cacheFile) &&
       this.exchangeSettings.use_cache) {
-      const data = fs.readFileSync('./' + this.cachedFile, 'utf8')
+      const data = fs.readFileSync('./' + cacheFile, 'utf8')
       if (data) {
         return Promise.resolve(JSON.parse(data))
       } else {
@@ -45,7 +49,7 @@ class Fetcher {
           dataKey = 'Time Series (' + exchangeParams.intraday_interval + ')'
           break
         case 'TIME_SERIES_WEEKLY':
-          dataKey = 'Time Series (Weekly)'
+          dataKey = 'Weekly Time Series'
           break
         default:
           throw new Error('Invalid exchange function parameter.')
@@ -54,7 +58,7 @@ class Fetcher {
         params: params
       })
         .then(response => response.data[dataKey])
-        .then(timeseries => this.processAlphaVantageSeries(timeseries))
+        .then(timeseries => this.processAlphaVantageSeries(timeseries, cacheFile))
         .catch(error => Promise.reject(error))
     }
   }
@@ -62,8 +66,12 @@ class Fetcher {
   /**
    * Helper function for processing Alpha Vantage index time-series
    * @param {Array} timeseries Time-series candle data
+   * @param {String} cacheFile Filename store data to (if cache enabled)
    */
-  processAlphaVantageSeries (timeseries) {
+  processAlphaVantageSeries (timeseries, cacheFile) {
+    if (typeof (timeseries) === 'undefined' || timeseries === null || timeseries.length <= 0) {
+      return Promise.reject(new Error('Empty data from Alpha Vantage API'))
+    }
     const series = Object.keys(timeseries).reverse().map(timestamp =>
       Candle.createIndex(
         parseFloat(timeseries[timestamp]['1. open']), // Open
@@ -73,16 +81,11 @@ class Fetcher {
         new Date(timestamp).getTime()) // Timestamp in ms since Epoch
     )
     if (series && this.exchangeSettings.use_cache) {
-      fs.writeFile('./' + this.cachedFile, JSON.stringify(series, null, 2), 'utf-8', (err) => {
+      fs.writeFile('./' + cacheFile, JSON.stringify(series, null, 2), 'utf-8', (err) => {
         if (err) throw err
       })
     }
-
-    if (series.length > 0) {
-      return Promise.resolve(series)
-    } else {
-      return Promise.reject(new Error('Empty data from Alpha Vantage API'))
-    }
+    return Promise.resolve(series)
   }
 }
 
