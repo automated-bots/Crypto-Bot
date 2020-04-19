@@ -40,7 +40,7 @@ class Communicate {
         if (result.all_points) {
           message += ' _Market is closed now._'
         }
-        message += '\n[Open ^VIX Chart](https://finance.yahoo.com/chart/^VIX)'
+        message += '\n\n[Open ^VIX Chart](https://finance.yahoo.com/chart/^VIX)'
         this.sendTelegramMessage(message)
 
         // Process dual-alert (if applicable)
@@ -82,12 +82,14 @@ class Communicate {
         const close = cross.close.toFixed(1)
         switch (cross.type) {
           case 'bearish':
-            message += `towards a bearish trend 🌧. Histogram: ${histogram}% (before: ${prevHistogram}%). High: ${high} Low: ${low} Close: ${close}. Date: ${dateString}.`
-            message += '\n[Open ^GSPC Chart](https://finance.yahoo.com/chart/^GSPC)'
+            message += 'towards a bearish trend 🌧.'
+            message += `\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high} Low: ${low} Close: ${close}. Date: ${dateString}.`
+            message += '\n\n[Open ^GSPC Chart](https://finance.yahoo.com/chart/^GSPC)'
             break
           case 'bullish':
-            message += `towards a bullish trend 🔆! Histogram: ${histogram}% (before: ${prevHistogram}%). High: ${high} Low: ${low} Close: ${close}. Date: ${dateString}.`
-            message += '\n[Open ^GSPC Chart](https://finance.yahoo.com/chart/^GSPC)'
+            message += 'towards a bullish trend 🔆!'
+            message += `\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high} Low: ${low} Close: ${close}. Date: ${dateString}.`
+            message += '\n\n[Open ^GSPC Chart](https://finance.yahoo.com/chart/^GSPC)'
             break
         }
         this.sendTelegramMessage(message)
