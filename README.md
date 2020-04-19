@@ -26,9 +26,3 @@ Follow the steps:
 2. Adjust the configuration settings (optionally), webhook domain and API keys
 3. Install depedencies via: `npm install` (once needed)
 4. Start the bot using: `npm start`
-
-TODO
-----
-
-Use S&P 500 index, weekly chart and trigger on MACD signal crosses (downtrend and uptrend).
-

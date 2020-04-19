@@ -28,7 +28,7 @@ class Communicate {
    * @param {Object} result Volatility result structure
    */
   sendVolatilityUpdate (result) {
-    let message = '❗*Stock Alert*❗ -- ^VIX ticker changed alert level: '
+    let message = '❗*Stock Alert*❗~ ^VIX ticker changed alert level: '
     // Inform the user regarding the change in alert level
     message += this.volatilityAlertToString(result.level)
 
@@ -36,15 +36,16 @@ class Communicate {
       if (this.prevVolatilityAlertLevel !== result.level) {
         message += '\n\n'
         const dateString = Util.dateToString(result.latest_time)
-        message += `CBOE Volatility Index (VIX): *${result.percentage}%*. Latest close: ${result.latest_close_price}. Latest date: ${dateString}.`
+        message += `CBOE Volatility Index (^VIX): *${result.percentage}%*. Latest close: ${result.latest_close_price}. Latest date: ${dateString}.`
         if (result.all_points) {
           message += ' _Market is closed now._'
         }
+        message += '\n[Open ^VIX Chart](https://finance.yahoo.com/chart/^VIX)'
         this.sendTelegramMessage(message)
 
         // Process dual-alert (if applicable)
         if (result.dual_alert.alert) {
-          let dualMessage = '❗*Stock Alert*❗ -- VIX ticker changed twice the alert level within a day: '
+          let dualMessage = '❗*Stock Alert*❗ ~ VIX ticker changed twice the alert level within a day: '
           dualMessage += this.volatilityAlertToString(result.dual_alert.level) + '!\n'
           dualMessage += `CBOE Volatility Index (^VIX): *${result.dual_alert.percentage}%*`
           this.sendTelegramMessage(dualMessage)
@@ -72,7 +73,7 @@ class Communicate {
       // Only send messages that are newer that the previous send onces (don't spam)
       const currentTime = cross.time.getTime()
       if (currentTime > this.prevLastCrossTime) {
-        let message = '❗*Stock Alert*❗ -- S&P 500 index (^GSPC) changed in market trend: '
+        let message = '❗*Stock Alert*❗ ~ S&P 500 index (^GSPC) changed in market trend: '
         const dateString = Util.dateToString(cross.time, true)
         const histogram = cross.hist.toFixed(4)
         const prevHistogram = cross.prevHist.toFixed(4)
@@ -82,9 +83,11 @@ class Communicate {
         switch (cross.type) {
           case 'bearish':
             message += `towards a bearish trend 🌧. Histogram: ${histogram}% (before: ${prevHistogram}%). High: ${high} Low: ${low} Close: ${close}. Date: ${dateString}`
+            message += '\n[Open ^GSPC Chart](https://finance.yahoo.com/chart/^GSPC)'
             break
           case 'bullish':
             message += `towards a bullish trend 🔆! Histogram: ${histogram}% (before: ${prevHistogram}%). High: ${high} Low: ${low} Close: ${close}. Date: ${dateString}`
+            message += '\n[Open ^GSPC Chart](https://finance.yahoo.com/chart/^GSPC)'
             break
         }
         this.sendTelegramMessage(message)

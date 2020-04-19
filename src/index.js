@@ -52,8 +52,7 @@ const fetcher = new Fetcher(cfg.exchange_settings)
 const dataProcessor = new DataProcessor(cfg.tickers.volatility.alerts,
   cfg.tickers.stockmarket.warmup_period,
   cfg.tickers.stockmarket.data_period,
-  cfg.tickers.stockmarket.indicators,
-  cfg.tickers.stockmarket.use_partial_week_data)
+  cfg.tickers.stockmarket.indicators)
 const comm = new Communicate(cfg.tickers.volatility.alerts, bot, cfg.telegram_settings.chat_id)
 
 /**
@@ -90,4 +89,5 @@ console.log('INFO: Cron triggers next times (shows only upcoming 6 dates):\n - '
 
 // Cron job for onTickStockMarket()
 const job2 = new CronJob(cfg.tickers.stockmarket.cron_time, onTickStockMarket, null, false, cfg.tickers.stockmarket.cron_timezone)
+onTickStockMarket()
 job2.start()

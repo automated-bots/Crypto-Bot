@@ -13,14 +13,12 @@ class DataProcessor {
    * @param {Number} warmupPeriod Warming-up period for market data
    * @param {Number} dataPeriod Market data data period used to be analysed
    * @param {Dict} indicatorsConfig Market data technical indicators config
-   * @param {Boolean} usePartialWeekData Also use the partial week data (when week is not over yet)
    */
-  constructor (volatilityAlerts, warmupPeriod, dataPeriod, indicatorsConfig, usePartialWeekData) {
+  constructor (volatilityAlerts, warmupPeriod, dataPeriod, indicatorsConfig) {
     this.volatilityAlerts = volatilityAlerts
     this.warmupPeriod = warmupPeriod
     this.dataPeriod = dataPeriod
     this.indicatorsConfig = indicatorsConfig
-    this.usePartialWeekData = usePartialWeekData
   }
 
   /**
@@ -101,8 +99,6 @@ class DataProcessor {
 
   /**
    * Process the S&P 500 (^GSPC) index, using weekly data.
-   * 
-   * TODO: Use this.usePartialWeekData (skip the last partial week if 'false', when week is not over yet)
    *
    * @param {Array} sp500Data ^GSPC index data
    * @returns Result structure
