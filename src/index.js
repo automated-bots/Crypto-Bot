@@ -85,9 +85,10 @@ function onTickStockMarket () {
 // Cron job for onTickVolatility()
 const job = new CronJob(cfg.tickers.volatility.cron_time, onTickVolatility, null, false, cfg.tickers.volatility.cron_timezone)
 job.start()
-console.log('INFO: Cron triggers next times (shows only upcoming 6 dates):\n - ' + job.nextDates(6).join('\n - '))
+console.log('INFO: Cron triggers scheduled for ^VIX (upcoming 6 shown):\n - ' + job.nextDates(6).join('\n - '))
 
 // Cron job for onTickStockMarket()
 const job2 = new CronJob(cfg.tickers.stockmarket.cron_time, onTickStockMarket, null, false, cfg.tickers.stockmarket.cron_timezone)
 onTickStockMarket()
 job2.start()
+console.log('INFO: Cron triggers scheduled for ^GSPC (upcoming 3 shown):\n - ' + job2.nextDates(3).join('\n - '))
