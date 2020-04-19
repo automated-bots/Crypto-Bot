@@ -4,29 +4,46 @@ const Util = require('./util')
 const csv = require('fast-csv')
 const fs = require('fs')
 
+// Dump CSV debug data (true/false)
+const DEBUG = false
+
 class DataProcessor {
   /**
    * @param {Dict} volatilityAlerts Volatility alert thresholds
+   * @param {Number} warmupPeriod Warming-up period for market data
+   * @param {Number} dataPeriod Market data data period used to be analysed
    * @param {Dict} indicatorsConfig Market data technical indicators config
+   * @param {Boolean} usePartialWeekData Also use the partial week data (when week is not over yet)
    */
-  constructor (volatilityAlerts, indicatorsConfig) {
+  constructor (volatilityAlerts, warmupPeriod, dataPeriod, indicatorsConfig, usePartialWeekData) {
     this.volatilityAlerts = volatilityAlerts
-    this.ppo = new PPO(indicatorsConfig.PPO.short, indicatorsConfig.PPO.long, indicatorsConfig.PPO.signal)
-    // We could keep a history in form of a buffer (multiple data points),
-    // or just save what we need for now: previous PPO histogram
-    this.previousPPO = null
-    this.resetResult()
-
-    // tmp!
-    this.csvData = []
+    this.warmupPeriod = warmupPeriod
+    this.dataPeriod = dataPeriod
+    this.indicatorsConfig = indicatorsConfig
+    this.usePartialWeekData = usePartialWeekData
   }
 
   /**
    * Process the intraday (5 min) candle data,
    * only process the last day volatility data points
    * @param {Array} volatilityData Volatility index data series (^VIX)
+   * @returns Results structure
    */
   processVolatility (volatilityData) {
+    const result = {
+        alert: false,
+        level: AlertLevels.NO_ALERT,
+        percentage: 0,
+        latest_close_price: 0,
+        latest_time: 0,
+        all_points: false,
+        dual_alert: {
+          alert: false,
+          level: AlertLevels.NO_ALERT,
+          percentage: 0
+        }
+      }
+
     // NYSE Marker opening hours: 9:30 - 16:00 = 6.5 hours open = 390 min.
     // Max data points = 390 min. / 5 .min interval = 78
     const maxDataPoints = 78
@@ -43,124 +60,139 @@ class DataProcessor {
 
     // Fill-in the volatility results
     if (highestPrice >= this.volatilityAlerts.extreme_high_threshold) {
-      this.result.volatility.alert = true
-      this.result.volatility.level = AlertLevels.EXTREME_HIGH_LEVEL
-      this.result.volatility.percentage = highestPrice
+      result.alert = true
+      result.level = AlertLevels.EXTREME_HIGH_LEVEL
+      result.percentage = highestPrice
     } else if (highestPrice >= this.volatilityAlerts.high_threshold) {
-      this.result.volatility.alert = true
-      this.result.volatility.level = AlertLevels.HIGH_LEVEL
-      this.result.volatility.percentage = highestPrice
+      result.alert = true
+      result.level = AlertLevels.HIGH_LEVEL
+      result.percentage = highestPrice
     }
 
     if (lowestPrice < this.volatilityAlerts.extreme_low_threshold) {
-      if (!this.result.volatility.alert) {
-        this.result.volatility.alert = true
-        this.result.volatility.level = AlertLevels.EXTREME_LOW_LEVEL
-        this.result.volatility.percentage = lowestPrice
+      if (!result.alert) {
+        result.alert = true
+        result.level = AlertLevels.EXTREME_LOW_LEVEL
+        result.percentage = lowestPrice
       } else {
         // Within the same day both a high threshold and low threshold was reached?
-        this.result.volatility.dual_alert.alert = true
-        this.result.volatility.dual_alert.level = AlertLevels.EXTREME_LOW_LEVEL
-        this.result.volatility.dual_alert.percentage = lowestPrice
+        result.dual_alert.alert = true
+        result.dual_alert.level = AlertLevels.EXTREME_LOW_LEVEL
+        result.dual_alert.percentage = lowestPrice
       }
     } else if (lowestPrice < this.volatilityAlerts.low_threshold) {
-      if (!this.result.volatility.alert) {
-        this.result.volatility.alert = true
-        this.result.volatility.level = AlertLevels.LOW_LEVEL
-        this.result.volatility.percentage = lowestPrice
+      if (!result.alert) {
+        result.alert = true
+        result.level = AlertLevels.LOW_LEVEL
+        result.percentage = lowestPrice
       } else {
         // Within the same day both a high threshold and low threshold was reached?
-        this.result.volatility.dual_alert.alert = true
-        this.result.volatility.dual_alert.level = AlertLevels.LOW_LEVEL
-        this.result.volatility.dual_alert.percentage = lowestPrice
+        result.dual_alert.alert = true
+        result.dual_alert.level = AlertLevels.LOW_LEVEL
+        result.dual_alert.percentage = lowestPrice
       }
     }
 
-    this.result.volatility.latest_close_price = latestPoint.close
-    this.result.volatility.latest_time = new Date(latestPoint.time)
-    this.result.volatility.all_points = (todayPoints.length === maxDataPoints)
+    result.latest_close_price = latestPoint.close
+    result.latest_time = new Date(latestPoint.time)
+    result.all_points = (todayPoints.length === maxDataPoints)
+    return result
   }
 
   /**
-   * Process the S&P 500 (^GSPC) index, using weekly data
-   * (DO we want to process partially weekly data, if the week is not yet over?)
+   * Process the S&P 500 (^GSPC) index, using weekly data.
+   * 
+   * TODO: Use this.usePartialWeekData (skip the last partial week if 'false', when week is not over yet)
    *
    * @param {Array} sp500Data ^GSPC index data
+   * @returns Result structure
    */
   processStockMarket (sp500Data) {
-    // Process PPO indicator using S&P 500 data points
-    let tick
-    // TODO: Wait x amount of time before the MACD is 'stable' due to moving average calculations
-    for (tick of sp500Data) {
-      // Update indicator
-      this.ppo.update(tick.close)
+    const result = { crosses: [] }
+    const csvData = []
+    // Create technical indicator (Percentage Price Oscillator: PPO)
+    const ppo = new PPO(this.indicatorsConfig.PPO.short, this.indicatorsConfig.PPO.long, this.indicatorsConfig.PPO.signal)
 
-      // Check for MACD crosses
-      const ppo = this.ppo.getResult()
-      this.csvData.push({
-        date: Util.dateToString(new Date(tick.time)),
-        close: tick.close,
-        ppo: ppo.ppo,
-        signal: ppo.signal,
-        hist: ppo.hist
-      })
-      if (this.previousPPO !== null) {
-        // Fill-in the PPO (MACD) results
-        const bullish = Math.sign(this.previousPPO.hist) === -1 &&
-        (Math.sign(ppo.hist) === 1 || Math.sign(ppo.hist) === 0)
-        if (bullish) {
-          this.result.crosses.push({
-            type: 'bullish',
-            close: tick.close,
-            ppo: ppo.ppo,
-            signal: ppo.signal,
-            time: new Date(tick.time)
-          })
-        }
-        const bearish = (Math.sign(this.previousPPO.hist) === 0 || Math.sign(this.previousPPO.hist) === 1) &&
-        (Math.sign(ppo.hist) === -1)
-        if (bearish) {
-          this.result.crosses.push({
-            type: 'bearish',
-            close: tick.close,
-            ppo: ppo.ppo,
-            signal: ppo.signal,
-            time: new Date(tick.time)
-          })
+    // Strip down the data series to just what is needed for warming-up fase + data period
+    let nrOfDataPoints = this.warmupPeriod + this.dataPeriod
+    let firstIndexUsed = (sp500Data.length -1) - (this.dataPeriod -1)
+    if (sp500Data.length < nrOfDataPoints) {
+      console.error('ERROR: Not enough data received from API')
+      nrOfDataPoints = sp500Data.length
+    }
+    if (firstIndexUsed < 0) {
+      console.error('ERROR: Index of first used data point out-of-range.')
+      firstIndexUsed = 0
+    }
+    const lastDataPoints = sp500Data.slice(sp500Data.length - nrOfDataPoints, sp500Data.length)
+    const startTimestamp = sp500Data[firstIndexUsed].time
+
+    // Process PPO indicator using S&P 500 data points
+    // We could create a buffer of history of PPO,
+    // or just save what we need for now: previous PPO histogram
+    let previousPPO = null
+    for (const tick of lastDataPoints) {
+      // Update indicator based on close price
+      ppo.update(tick.close)
+      // Get latest values
+      const currentPPO = ppo.getResult()
+      if (DEBUG) {
+        csvData.push({
+          date: Util.dateToString(new Date(tick.time)),
+          close: tick.close,
+          ppo: currentPPO.ppo,
+          signal: currentPPO.signal,
+          hist: currentPPO.hist
+        })
+      }
+
+      // Only check data after warming-up period
+      if (tick.time > startTimestamp) {
+        // Check for MACD crosses
+        if (previousPPO !== null) {
+          // Fill-in the PPO (MACD) results
+          const bullish = Math.sign(previousPPO.hist) === -1 &&
+          (Math.sign(currentPPO.hist) === 1 || Math.sign(currentPPO.hist) === 0)
+          if (bullish) {
+            result.crosses.push({
+              type: 'bullish',
+              close: tick.close,
+              high: tick.high,
+              low: tick.low,
+              ppo: currentPPO.ppo,
+              signal: currentPPO.signal,
+              hist: currentPPO.hist,
+              prevHist: previousPPO.hist,
+              time: new Date(tick.time)
+            })
+          }
+          const bearish = (Math.sign(previousPPO.hist) === 0 || Math.sign(previousPPO.hist) === 1) &&
+          (Math.sign(currentPPO.hist) === -1)
+          if (bearish) {
+            result.crosses.push({
+              type: 'bearish',
+              close: tick.close,
+              high: tick.high,
+              low: tick.low,
+              ppo: currentPPO.ppo,
+              signal: currentPPO.signal,
+              hist: currentPPO.hist,
+              prevHist: previousPPO.hist,
+              time: new Date(tick.time)
+            })
+          }
         }
       }
-      this.previousPPO = ppo
+      // Always set previous PPO in case of next tick
+      previousPPO = currentPPO
     }
 
     // Dump verbose data to CSV file
-    const ws = fs.createWriteStream('debug.csv')
-    csv.write(this.csvData, { headers: true }).pipe(ws)
-  }
-
-  /**
-   * Return the processed data result structure
-   */
-  getResult () {
-    return this.result
-  }
-
-  resetResult () {
-    this.result = {
-      volatility: {
-        alert: false,
-        level: AlertLevels.NO_ALERT,
-        percentage: 0,
-        latest_close_price: 0,
-        latest_time: 0,
-        all_points: false,
-        dual_alert: {
-          alert: false,
-          level: AlertLevels.NO_ALERT,
-          percentage: 0
-        }
-      },
-      crosses: []
+    if (DEBUG) {
+      const ws = fs.createWriteStream('debug.csv')
+      csv.write(csvData, { headers: true }).pipe(ws)
     }
+    return result
   }
 }
 

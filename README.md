@@ -3,12 +3,13 @@ Market Alert Bot
 
 This Telegram bot uses the the following data to notify the user:
 * [VIX Index](http://www.cboe.com/products/vix-index-volatility/volatility-indexes)
-* [GSPC Index](todo)
+* [GSPC Index](https://finance.yahoo.com/quote/%5EGSPC/) - [companies by Weight](https://www.slickcharts.com/sp500) (aka S&P 500 index)
 
 This bot will inform you via Telegram, when a certain threshold limit is reached on the VIX volatility market index (on NYSE)
 and or whenever there is an up- or downtrend in the S&P 500 market.
 
 * [More info about VIX](https://www.veb.net/artikel/06263/7-vragen-over-de-vix-index) (Dutch)
+* [More info about S&P 500](https://www.lynx.nl/kennis/artikelen/sp-500-index-alles-populairste-speler/) (Dutch)
 
 Requirements
 ------------

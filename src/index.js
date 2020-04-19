@@ -47,9 +47,13 @@ app.listen(port, () => {
   console.log(`INFO: Market Alert Bot v${version} is running on port ${port}!`)
 })
 
-// Create API Fetcher, data process and communication instances
+// Create API Fetcher, data processor and communication instances
 const fetcher = new Fetcher(cfg.exchange_settings)
-const dataProcessor = new DataProcessor(cfg.tickers.volatility.alerts, cfg.tickers.stockmarket.indicators)
+const dataProcessor = new DataProcessor(cfg.tickers.volatility.alerts,
+  cfg.tickers.stockmarket.warmup_period,
+  cfg.tickers.stockmarket.data_period,
+  cfg.tickers.stockmarket.indicators,
+  cfg.tickers.stockmarket.use_partial_week_data)
 const comm = new Communicate(cfg.tickers.volatility.alerts, bot, cfg.telegram_settings.chat_id)
 
 /**
@@ -58,11 +62,8 @@ const comm = new Communicate(cfg.tickers.volatility.alerts, bot, cfg.telegram_se
 function onTickVolatility () {
   // Get market data points
   fetcher.getData(cfg.tickers.volatility.params).then(data => {
-    dataProcessor.processVolatility(data)
-    // Get the result and send it to the communicate class
-    comm.send(dataProcessor.getResult())
-    // Restore to defaults
-    dataProcessor.resetResult()
+    const result = dataProcessor.processVolatility(data)
+    comm.sendVolatilityUpdate(result)
   })
     .catch(error => {
       console.error('Error: Something went wrong during getting or processing the volatility data:\n')
@@ -73,11 +74,8 @@ function onTickVolatility () {
 function onTickStockMarket () {
   // Get market data points
   fetcher.getData(cfg.tickers.stockmarket.params).then(data => {
-    dataProcessor.processStockMarket(data)
-    // Get the result and send it to the communicate class
-    comm.send(dataProcessor.getResult())
-    // Restore to defaults
-    dataProcessor.resetResult()
+    const result = dataProcessor.processStockMarket(data)
+    comm.sendStockMarketUpdate(result)
   })
     .catch(error => {
       console.error('Error: Something went wrong during getting or processing the stock market data:\n')

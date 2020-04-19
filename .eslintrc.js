@@ -4,9 +4,7 @@ module.exports = {
     node: true,
     mocha: true
   },
-  extends: [
-    'standard'
-  ],
+  extends: 'eslint:recommended',
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly'

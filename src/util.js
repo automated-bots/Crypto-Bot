@@ -2,13 +2,18 @@ class Util {
   /**
    * Convert the date object to string
    * @param {Date} date Date object
+   * @param {boolean} onlyDate Only return date (without time)
    */
-  static dateToString (date) {
-    return date.getFullYear() + '-' +
-      Util.appendLeadingZeroes(date.getMonth() + 1) + '-' +
-      Util.appendLeadingZeroes(date.getDate()) + ' ' +
+  static dateToString (date, onlyDate = false) {
+    let ret = date.getFullYear() + '-' +
+    Util.appendLeadingZeroes(date.getMonth() + 1) + '-' +
+    Util.appendLeadingZeroes(date.getDate())
+    if (!onlyDate) {
+      ret += ' ' +
       Util.appendLeadingZeroes(date.getHours()) + ':' +
       Util.appendLeadingZeroes(date.getMinutes())
+    }
+    return ret
   }
 
   static appendLeadingZeroes (n) {
