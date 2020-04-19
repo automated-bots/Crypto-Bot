@@ -28,7 +28,7 @@ class Communicate {
    * @param {Object} result Volatility result structure
    */
   sendVolatilityUpdate (result) {
-    let message = '❗*Stock Alert*❗~ ^VIX ticker changed alert level: '
+    let message = '❗*Stock Alert*❗\n^VIX ticker changed alert level: '
     // Inform the user regarding the change in alert level
     message += this.volatilityAlertToString(result.level)
 
@@ -45,7 +45,7 @@ class Communicate {
 
         // Process dual-alert (if applicable)
         if (result.dual_alert.alert) {
-          let dualMessage = '❗*Stock Alert*❗ ~ VIX ticker changed twice the alert level within a day: '
+          let dualMessage = '❗*Stock Alert*❗\nVIX ticker changed twice the alert level within a day: '
           dualMessage += this.volatilityAlertToString(result.dual_alert.level) + '!\n'
           dualMessage += `CBOE Volatility Index (^VIX): *${result.dual_alert.percentage}%*`
           this.sendTelegramMessage(dualMessage)
@@ -73,7 +73,7 @@ class Communicate {
       // Only send messages that are newer that the previous send onces (don't spam)
       const currentTime = cross.time.getTime()
       if (currentTime > this.prevLastCrossTime) {
-        let message = '❗*Stock Alert*❗ ~ S&P 500 index (^GSPC) changed in market trend: '
+        let message = '❗*Stock Alert*❗\nS&P 500 index (^GSPC) changed in market trend: '
         const dateString = Util.dateToString(cross.time, true)
         const histogram = cross.hist.toFixed(4)
         const prevHistogram = cross.prevHist.toFixed(4)
