@@ -22,6 +22,9 @@ class Communicate {
 
   /**
    * Send message to Telegram channel about volatility (only when needed)
+   * 
+   * TODO: Send link towards tradingview or something?
+   * 
    * @param {Object} result Volatility result structure
    */
   sendVolatilityUpdate (result) {
@@ -59,6 +62,9 @@ class Communicate {
 
   /**
    * Send message to Telegram channel about stock market (only when needed)
+   * 
+   * TODO: Send link towards tradingview or something?
+   * 
    * @param {Object} result Stock market result structure
    */
   sendStockMarketUpdate (result) {
