@@ -15,7 +15,7 @@ class Communicate {
     this.prevVolatilityAlertLevel = AlertLevels.NO_ALERT
     // Don't spam the channel, save the last MACD cross send-out
     this.prevLastCrossTime = 0
-    this.sendMessageOptions = { parse_mode: 'markdown', disable_web_page_preview: false }
+    this.sendMessageOptions = { parse_mode: 'markdown', disable_web_page_preview: true }
     // Notify channel about Bot booting-up
     this.sendTelegramMessage('Starting-up Bot... 🤓')
   }
@@ -82,11 +82,11 @@ class Communicate {
         const close = cross.close.toFixed(1)
         switch (cross.type) {
           case 'bearish':
-            message += `towards a bearish trend 🌧. Histogram: ${histogram}% (before: ${prevHistogram}%). High: ${high} Low: ${low} Close: ${close}. Date: ${dateString}`
+            message += `towards a bearish trend 🌧. Histogram: ${histogram}% (before: ${prevHistogram}%). High: ${high} Low: ${low} Close: ${close}. Date: ${dateString}.`
             message += '\n[Open ^GSPC Chart](https://finance.yahoo.com/chart/^GSPC)'
             break
           case 'bullish':
-            message += `towards a bullish trend 🔆! Histogram: ${histogram}% (before: ${prevHistogram}%). High: ${high} Low: ${low} Close: ${close}. Date: ${dateString}`
+            message += `towards a bullish trend 🔆! Histogram: ${histogram}% (before: ${prevHistogram}%). High: ${high} Low: ${low} Close: ${close}. Date: ${dateString}.`
             message += '\n[Open ^GSPC Chart](https://finance.yahoo.com/chart/^GSPC)'
             break
         }
