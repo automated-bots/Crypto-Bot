@@ -89,6 +89,5 @@ console.log('INFO: Cron triggers scheduled for ^VIX (upcoming 6 shown):\n - ' + 
 
 // Cron job for onTickStockMarket()
 const job2 = new CronJob(cfg.tickers.stockmarket.cron_time, onTickStockMarket, null, false, cfg.tickers.stockmarket.cron_timezone)
-onTickStockMarket()
 job2.start()
 console.log('INFO: Cron triggers scheduled for ^GSPC (upcoming 3 shown):\n - ' + job2.nextDates(3).join('\n - '))
