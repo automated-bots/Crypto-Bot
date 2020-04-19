@@ -36,7 +36,7 @@ class Communicate {
       if (this.prevVolatilityAlertLevel !== result.level) {
         message += '\n\n'
         const dateString = Util.dateToString(result.latest_time)
-        message += `CBOE Volatility Index (^VIX): *${result.percentage}%*. Latest close: ${result.latest_close_price}. Latest date: ${dateString}.`
+        message += `CBOE Volatility Index (^VIX): *${result.percentage}%*. Latest Close: ${result.latest_close_price}. Latest date: ${dateString}.`
         if (result.all_points) {
           message += ' _Market is closed now._'
         }
@@ -83,12 +83,12 @@ class Communicate {
         switch (cross.type) {
           case 'bearish':
             message += 'towards a bearish trend 🌧.'
-            message += `\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high} Low: ${low} Close: ${close}. Date: ${dateString}.`
+            message += `\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high}. Low: ${low}. Close: ${close}. Date: ${dateString}.`
             message += '\n\n[Open ^GSPC Chart](https://finance.yahoo.com/chart/^GSPC)'
             break
           case 'bullish':
             message += 'towards a bullish trend 🔆!'
-            message += `\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high} Low: ${low} Close: ${close}. Date: ${dateString}.`
+            message += `\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high}. Low: ${low}. Close: ${close}. Date: ${dateString}.`
             message += '\n\n[Open ^GSPC Chart](https://finance.yahoo.com/chart/^GSPC)'
             break
         }
