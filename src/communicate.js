@@ -17,7 +17,7 @@ class Communicate {
     this.prevLastCrossTime = 0
     this.sendMessageOptions = { parse_mode: 'markdown', disable_web_page_preview: false }
     // Notify channel about Bot booting-up
-    this.sendTelegramMessage('Starting-up Bot...')
+    this.sendTelegramMessage('Starting-up Bot... 🤓')
   }
 
   /**
