@@ -18,6 +18,12 @@ This bot is written in JavaScript and run on NodeJS.
 
 ## Usage
 
+You can join the public [Stock Exchange Telegram channel](https://t.me/stock_exchange_updates), where this bot is connected to.
+
+*Or* since this project is open-source, you can setup your own `index-bot` as well as your own [Telegram Bot](https://core.telegram.org/bots). See below.
+
+### Set-up yourself
+
 Follow the steps to get it up and running yourself:
 
 1. Copy the config template to `config.yml`: `cp configTemplate.yml config.yml`
