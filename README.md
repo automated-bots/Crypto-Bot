@@ -1,12 +1,14 @@
 # Market Alert Bot
 
-`index-bot` is an open-source stock (forex) bot that uses the the following data to notify the user via Telegram:
+`index-bot` is an open-source stock (forex) bot that uses the the following data to notify the user via Telegram.
+
+For now it's using the following market data:
 
 * [VIX Index](http://www.cboe.com/products/vix-index-volatility/volatility-indexes)
 * [GSPC Index](https://finance.yahoo.com/quote/%5EGSPC/) - [companies by Weight](https://www.slickcharts.com/sp500) (aka S&P 500 index)
 
 This bot will inform you via Telegram, when a certain threshold limit is reached on the VIX volatility market index (on NYSE)
-and or whenever there is an up- or downtrend in the S&P 500 market.
+and or whenever there is an up- or downtrend in the S&P 500 market. Technical analysis is applied to determine the up- or downtrend of the S&P 500 index. 
 
 ## Requirements
 
