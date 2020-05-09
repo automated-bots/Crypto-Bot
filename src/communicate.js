@@ -16,8 +16,8 @@ class Communicate {
     // Don't spam the channel, save the last MACD cross send-out
     this.prevLastCrossTime = 0
     this.sendMessageOptions = { parse_mode: 'markdown', disable_web_page_preview: true }
-    // Notify channel about Bot booting-up
-    this.sendTelegramMessage('Starting-up Bot... 🤓')
+    // Notify channel about Bot booting-up (commented-out for now)
+    // this.sendTelegramMessage('Starting-up Bot... 🤓')
   }
 
   /**
