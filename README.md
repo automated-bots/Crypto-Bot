@@ -22,9 +22,27 @@ You can join the public [Stock Exchange Telegram channel](https://t.me/stock_exc
 
 *Or* since this project is open-source, you can setup your own `index-bot` as well as your own [Telegram Bot](https://core.telegram.org/bots). See below.
 
-### Set-up yourself
+### Run it yourself
 
-Follow the steps to get it up and running yourself:
+#### Docker
+
+Use the [DockerHub Docker image](https://hub.docker.com/repository/docker/danger89/index-bot) (see also: [Dockerfile](Dockerfile)).
+
+Copy the config file and change the settings:
+
+```sh
+cp configTemplate.yml config.yml
+```
+
+Start Docker container:
+
+```sh
+docker run --restart always -d danger89/index-bot
+```
+
+#### Plain terminal
+
+Follow the steps:
 
 1. Copy the config template to `config.yml`: `cp configTemplate.yml config.yml`
 2. Adjust the configuration settings (optionally), webhook domain for Telegram bot and API keys for the stock data
