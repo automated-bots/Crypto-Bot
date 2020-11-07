@@ -1,3 +1,17 @@
 .git
 data
 node_modules
+Dockerfile
+
+/cachedData.json
+/cachedDataWeekly.json
+config.yml
+debug.csv
+*.sh
+*.md
+
+# Hidden files
+.dockerignore
+.eslintrc.js
+.gitignore
+.gitlab-ci.yml

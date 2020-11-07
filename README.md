@@ -22,36 +22,48 @@ You can join the public [Stock Exchange Telegram channel](https://t.me/stock_exc
 
 *Or* since this project is open-source, you can setup your own `index-bot` as well as your own [Telegram Bot](https://core.telegram.org/bots). See below.
 
-### Run it yourself
+## Run it yourself
 
-#### Docker
+### Docker
 
 Use the [DockerHub Docker image](https://hub.docker.com/repository/docker/danger89/index-bot) (see also: [Dockerfile](Dockerfile)).
 
-Copy the config file and change the settings:
+1. Copy the config file to some location on a machine:
 
 ```sh
 cp configTemplate.yml config.yml
 ```
 
-Start Docker container:
+2. Now change the `config.yml` to your needs.
+3. Start Docker container by providing the `config.yml` from outside the Docker container (so change the path `/some/location/` to your config location):
 
 ```sh
-docker run --restart always -d danger89/index-bot
+docker run --restart always -v $(pwd)/config.yml:/some/location/config.yml -d danger89/index-bot
 ```
 
-#### Plain terminal
+*Note:* THe command above should pull the image automatically from Docker Hub.
+
+### Plain terminal
 
 Follow the steps:
 
 1. Copy the config template to `config.yml`: `cp configTemplate.yml config.yml`
-2. Adjust the configuration settings (optionally), webhook domain for Telegram bot and API keys for the stock data
+2. Change the configuration settings, webhook domain for Telegram bot and API keys for the stock data
 3. Install depedencies via: `npm install` (once needed)
 4. Start the bot using: `npm start`
 
-**Advice:** Run this bot 24/7 on some dedicated hardware. Crontime within the configuration will take care of the triggers when to look-up data.
+**Advice:** Run the bot 24/7 on some dedicated hardware. `cron_time` within the configuration will take care of the triggers when to look-up for data.
 
 **Hidden feature:** Set `DEBUG` to `true` value in the [dataProcessor.js](src/dataProcessor.js) source file to dump the market data to a comma-seperated values (CSV) file. Useful for off-line verification/calculations.
+
+### Most important settings
+
+The following settings require definitely some addition during setup:
+
+* `exchange_settings -> apiKey` - Alpha Vantage API Key (create one on https://www.alphavantage.co/)
+* `telegram_settings -> bot_token` - Token from Telegram @BotFather
+* `telegram_settings -> public_url` - Telegram public URL for Webhook
+* `telegram_settings -> chat_id` - Telegram channel name including '@' or any other chat ID.
 
 ## License 
 
