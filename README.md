@@ -28,13 +28,13 @@ You can join the public [Stock Exchange Telegram channel](https://t.me/stock_exc
 
 Use the [DockerHub Docker image](https://hub.docker.com/repository/docker/danger89/index-bot) (see also: [Dockerfile](Dockerfile)).
 
-1. Copy/rename the [config template file](configTemplate.yml) to `config.yml`, can be stored anywhere you like on your machine:
+1. Copy/rename the [config template file](configTemplate.yml) to `config.yml`, can be stored anywhere on your machine:
 
 ```sh
 cp configTemplate.yml config.yml
 ```
 
-2. Now change the `config.yml` to your needs.
+2. Now change the `config.yml` to your needs (see "Most important Settings" section below).
 3. Start Docker container by providing the `config.yml` from outside the Docker container (by default using current working directory, `pwd`, on your host machine):
 
 ```sh
@@ -56,7 +56,7 @@ Follow the steps:
 
 **Hidden feature:** Set `DEBUG` to `true` value in the [dataProcessor.js](src/dataProcessor.js) source file to dump the market data to a comma-seperated values (CSV) file. Useful for off-line verification/calculations.
 
-### Most important settings
+### Most important Settings
 
 The following settings require definitely some attention during setup:
 
