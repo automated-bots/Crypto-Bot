@@ -60,6 +60,7 @@ Follow the steps:
 
 The following settings require definitely some addition during setup:
 
+* `exchange_settings -> use_cache` - Set to `False` to not use any local caching, needed for production!
 * `exchange_settings -> apiKey` - Alpha Vantage API Key (create one on https://www.alphavantage.co/)
 * `telegram_settings -> bot_token` - Token from Telegram @BotFather
 * `telegram_settings -> public_url` - Telegram public URL for Webhook
