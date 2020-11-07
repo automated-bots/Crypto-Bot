@@ -41,7 +41,7 @@ cp configTemplate.yml config.yml
 docker run --restart always -v $(pwd)/config.yml:/app/config.yml -d danger89/index-bot
 ```
 
-*Note:* THe command above should pull the image automatically from Docker Hub.
+*Note:* The command above should pull the image automatically from Docker Hub.
 
 ### Plain terminal
 
@@ -62,7 +62,7 @@ The following settings require definitely some attention during setup:
 
 * `exchange_settings -> use_cache` - Set to `False` to not use any local caching, needed for production!
 * `exchange_settings -> apiKey` - Alpha Vantage API Key (create one on https://www.alphavantage.co/)
-* `telegram_settings -> bot_token` - Token from Telegram @BotFather
+* `telegram_settings -> bot_token` - Token from Telegram, created via [@BotFather](https://telegram.me/BotFather)
 * `telegram_settings -> public_url` - Telegram public URL for Webhook
 * `telegram_settings -> chat_id` - Telegram channel name including '@' or any other chat ID.
 
