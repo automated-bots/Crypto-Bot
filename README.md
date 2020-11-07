@@ -28,14 +28,14 @@ You can join the public [Stock Exchange Telegram channel](https://t.me/stock_exc
 
 Use the [DockerHub Docker image](https://hub.docker.com/repository/docker/danger89/index-bot) (see also: [Dockerfile](Dockerfile)).
 
-1. Copy the config file to some location on a machine:
+1. Copy/rename the [config template file](configTemplate.yml) to `config.yml`, can be stored anywhere you like on your machine:
 
 ```sh
 cp configTemplate.yml config.yml
 ```
 
 2. Now change the `config.yml` to your needs.
-3. Start Docker container by providing the `config.yml` from outside the Docker container (by default using current working directory (`pwd`) on your host machine):
+3. Start Docker container by providing the `config.yml` from outside the Docker container (by default using current working directory, `pwd`, on your host machine):
 
 ```sh
 docker run --restart always -v $(pwd)/config.yml:/app/config.yml -d danger89/index-bot
@@ -58,7 +58,7 @@ Follow the steps:
 
 ### Most important settings
 
-The following settings require definitely some addition during setup:
+The following settings require definitely some attention during setup:
 
 * `exchange_settings -> use_cache` - Set to `False` to not use any local caching, needed for production!
 * `exchange_settings -> apiKey` - Alpha Vantage API Key (create one on https://www.alphavantage.co/)
