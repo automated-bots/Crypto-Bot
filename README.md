@@ -35,10 +35,10 @@ cp configTemplate.yml config.yml
 ```
 
 2. Now change the `config.yml` to your needs.
-3. Start Docker container by providing the `config.yml` from outside the Docker container (so change the path `/some/location/` to your config location):
+3. Start Docker container by providing the `config.yml` from outside the Docker container (by default using current working directory (`pwd`) on your host machine):
 
 ```sh
-docker run --restart always -v $(pwd)/config.yml:/some/location/config.yml -d danger89/index-bot
+docker run --restart always -v $(pwd)/config.yml:/app/config.yml -d danger89/index-bot
 ```
 
 *Note:* THe command above should pull the image automatically from Docker Hub.
