@@ -11,15 +11,11 @@ before_script:
 
 audit:
   stage: test
-  tags:
-  - nodejs
   script:
   - npm audit
   allow_failure: true
 
 lint:
   stage: test
-  tags:
-  - nodejs
   script:
   - npm run lint
