@@ -1,0 +1,10 @@
+version: "3"
+services:
+  index_bot:
+    image: danger89/index-bot:latest
+    container_name: index_bot
+    restart: always
+    volumes:
+      - /home/username/folder/to/config.yml:/app/config.yml
+    ports:
+      - "3008:3008"
