@@ -1,24 +1,23 @@
 // NTBA = node-telegram-bot-api fixes
-process.env['NTBA_FIX_319'] = 1
-process.env['NTBA_FIX_350'] = 1
+process.env.NTBA_FIX_319 = 1
+process.env.NTBA_FIX_350 = 1
+// Constants
+const port = process.env.PORT || 3008
 
-const express = require('express')
-const cors = require('cors')
 const fs = require('fs')
 const YAML = require('yaml')
 const Fetcher = require('./fetcher')
 const DataProcessor = require('./dataProcessor')
 const CronJob = require('cron').CronJob
+const crypto = require('crypto')
+global.TelegramSecretHash = crypto.randomBytes(20).toString('hex')
 const TelegramBot = require('node-telegram-bot-api')
+const express = require('express')
+// const cors = require('cors')
 const Communicate = require('./communicate')
 const { version } = require('../package.json')
-
 const app = express()
-app.use(cors())
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-
-const port = process.env.PORT || 3008
+const telegramRouter = require('./routes/telegram')
 
 const cfg = YAML.parse(fs.readFileSync('config.yml', 'utf8').toString())
 if (!cfg) {
@@ -32,17 +31,20 @@ console.log('INFO: ^VIX Cron time: \'' + cfg.tickers.volatility.cron_time + '\' 
 console.log('INFO: ^GSPC Cron time: \'' + cfg.tickers.stockmarket.cron_time + '\' with timezone: ' + cfg.tickers.stockmarket.cron_timezone)
 
 const bot = new TelegramBot(cfg.telegram_settings.bot_token)
-// Informs Telegram servers of the new webhook
-bot.setWebHook(`${cfg.telegram_settings.public_url}/bot/${cfg.telegram_settings.bot_token}`).catch(error => {
-  console.log('ERROR: Telegram webhook setup failed: ' + error.message)
+bot.setWebHook(`${cfg.telegram_settings.public_url}/telegram/bot${TelegramSecretHash}`)
+bot.onText(/\/start/, (msg) => {
+  console.log('INFO: Set chat id: ' + msg.chat.id)
+  app.set('chat_id', msg.chat.id)
 })
 
+// app.use(cors())
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
+app.set('telegram_bot', bot)
+
 app.get('/', (req, res) => res.send('Market data bot v' + version))
-// We are receiving updates at the route below
-app.post(`/bot/${cfg.telegram_settings.bot_token}`, (req, res) => {
-  bot.processUpdate(req.body)
-  res.sendStatus(200)
-})
+app.use('/telegram', telegramRouter)
+
 app.listen(port, () => {
   console.log(`INFO: Market Alert Bot v${version} is running on port ${port}!`)
 })

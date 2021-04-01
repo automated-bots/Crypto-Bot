@@ -29,18 +29,18 @@ class DataProcessor {
    */
   processVolatility (volatilityData) {
     const result = {
+      alert: false,
+      level: AlertLevels.NO_ALERT,
+      percentage: 0,
+      latest_close_price: 0,
+      latest_time: 0,
+      all_points: false,
+      dual_alert: {
         alert: false,
         level: AlertLevels.NO_ALERT,
-        percentage: 0,
-        latest_close_price: 0,
-        latest_time: 0,
-        all_points: false,
-        dual_alert: {
-          alert: false,
-          level: AlertLevels.NO_ALERT,
-          percentage: 0
-        }
+        percentage: 0
       }
+    }
 
     // NYSE Marker opening hours: 9:30 - 16:00 = 6.5 hours open = 390 min.
     // Max data points = 390 min. / 5 .min interval = 78
@@ -111,7 +111,7 @@ class DataProcessor {
 
     // Strip down the data series to just what is needed for warming-up fase + data period
     let nrOfDataPoints = this.warmupPeriod + this.dataPeriod
-    let firstIndexUsed = (sp500Data.length -1) - (this.dataPeriod -1)
+    let firstIndexUsed = (sp500Data.length - 1) - (this.dataPeriod - 1)
     if (sp500Data.length < nrOfDataPoints) {
       console.error('ERROR: Not enough data received from API')
       nrOfDataPoints = sp500Data.length

@@ -25,19 +25,19 @@
   "author": "Melroy van den Berg <melroy@melroy.org>",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.21.0",
-    "cors": "^2.8.5",
+    "axios": "^0.21.1",
     "cron": "^1.8.2",
     "express": "^4.17.1",
-    "fast-csv": "^4.1.3",
-    "node-telegram-bot-api": "^0.40.0",
-    "yaml": "^1.9.2"
+    "fast-csv": "^4.3.6",
+    "node-telegram-bot-api": "^0.52.0",
+    "yaml": "^1.10.2"
   },
   "devDependencies": {
-    "eslint": "^7.12.1",
-    "eslint-config-standard": "^16.0.1",
+    "eslint": "^7.23.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.2"
+    "eslint-plugin-promise": "^4.3.1",
+    "eslint-plugin-standard": "^4.1.0"
   }
 }

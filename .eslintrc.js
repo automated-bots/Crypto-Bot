@@ -4,16 +4,19 @@ module.exports = {
     node: true,
     mocha: true
   },
-  extends: 'eslint:recommended',
+  extends: [
+    'standard'
+  ],
   globals: {
     Atomics: 'readonly',
-    SharedArrayBuffer: 'readonly'
+    SharedArrayBuffer: 'readonly',
+    TelegramSecretHash: 'writable'
   },
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module'
   },
   rules: {
-    "no-return-assign": "off", // Allow assignment operator in return statement
+    'no-return-assign': 'off' // Allow assignment operator in return statement
   }
 }
