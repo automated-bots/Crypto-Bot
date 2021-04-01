@@ -3,6 +3,7 @@ process.env.NTBA_FIX_319 = 1
 process.env.NTBA_FIX_350 = 1
 // Constants
 const port = process.env.PORT || 3008
+const host = process.env.HOST || 'localhost'
 
 const fs = require('fs')
 const YAML = require('yaml')
@@ -45,8 +46,8 @@ app.set('telegram_bot', bot)
 app.get('/', (req, res) => res.send('Market data bot v' + version))
 app.use('/telegram', telegramRouter)
 
-app.listen(port, () => {
-  console.log(`INFO: Market Alert Bot v${version} is running on port ${port}!`)
+app.listen(port, host, () => {
+  console.log(`INFO: Market Alert Bot v${version} is now running on ${host} on port ${port}.`)
 })
 
 // Create API Fetcher, data processor and communication instances

@@ -8,13 +8,13 @@ For now it's using the following market data:
 * [GSPC Index](https://finance.yahoo.com/quote/%5EGSPC/) - [companies by Weight](https://www.slickcharts.com/sp500) (aka S&P 500 index)
 
 This bot will inform you via Telegram, when a certain threshold limit is reached on the VIX volatility market index (on NYSE)
-and or whenever there is an up- or downtrend in the S&P 500 market. Technical analysis is applied to determine the up- or downtrend of the S&P 500 index. 
+and or whenever there is an up- or downtrend in the S&P 500 market. Technical analysis is applied to determine the up- or downtrend of the S&P 500 index.
 
 ## Requirements
 
 This bot is written in JavaScript and run on NodeJS.
 
-* [Node.js](https://nodejs.org/en/download/)
+* [NodeJS 14 or higher](https://nodejs.org/en/download/)
 
 ## Usage
 
@@ -63,12 +63,17 @@ Follow the steps:
 The following settings require definitely some attention during setup:
 
 * `exchange_settings -> use_cache` - Set to `False` to not use any local caching, needed for production!
-* `exchange_settings -> apiKey` - Alpha Vantage API Key (create one on https://www.alphavantage.co/)
+* `exchange_settings -> apiKey` - Alpha Vantage API Key (create one on [their site](https://www.alphavantage.co/))
 * `telegram_settings -> bot_token` - Token from Telegram, created via [@BotFather](https://telegram.me/BotFather)
 * `telegram_settings -> public_url` - Telegram public URL for Webhook
 * `telegram_settings -> chat_id` - Telegram channel name including '@' or any other chat ID.
 
-## License 
+There are also 2 environment variables available to set:
+
+* `HOST` (default: `localhost`)
+* `PORT` (default: `3008`)
+
+## License
 
 [MIT License](LICENSE)
 
