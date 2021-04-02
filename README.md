@@ -70,7 +70,7 @@ The following settings require definitely some attention during setup:
 
 There are also 2 environment variables available to set:
 
-* `HOST` (default: `localhost`)
+* `HOST` (default: `0.0.0.0`)
 * `PORT` (default: `3008`)
 
 ## License
