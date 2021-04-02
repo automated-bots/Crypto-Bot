@@ -30,9 +30,9 @@ Use the [DockerHub Docker image](https://hub.docker.com/repository/docker/danger
 
 1. Copy/rename the [config template file](configTemplate.yml) to `config.yml`, can be stored anywhere on your machine:
 
-```sh
-cp configTemplate.yml config.yml
-```
+    ```sh
+    cp configTemplate.yml config.yml
+    ```
 
 2. Now change the `config.yml` to your needs (see "Most important Settings" section below).
 3. Start Docker container by providing the `config.yml` from outside the Docker container (by default using current working directory, `pwd`, on your host machine):
