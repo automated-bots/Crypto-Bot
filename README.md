@@ -37,9 +37,9 @@ Use the [DockerHub Docker image](https://hub.docker.com/repository/docker/danger
 2. Now change the `config.yml` to your needs (see "Most important Settings" section below).
 3. Start Docker container by providing the `config.yml` from outside the Docker container (by default using current working directory, `pwd`, on your host machine):
 
-```sh
-docker run --restart always -p 127.0.0.1:3008:3008 -v $(pwd)/config.yml:/app/config.yml -d danger89/index-bot
-```
+    ```sh
+    docker run --restart always -p 127.0.0.1:3008:3008 -v $(pwd)/config.yml:/app/config.yml -d danger89/index-bot
+    ```
 
 *Note:* The command above should pull the image automatically from Docker Hub.
 
