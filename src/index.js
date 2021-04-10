@@ -12,6 +12,7 @@ const DataProcessor = require('./dataProcessor')
 const CronJob = require('cron').CronJob
 const crypto = require('crypto')
 global.TelegramSecretHash = crypto.randomBytes(20).toString('hex')
+const apiTestRandomHash = crypto.randomBytes(40).toString('hex')
 const TelegramBot = require('node-telegram-bot-api')
 const express = require('express')
 // const cors = require('cors')
@@ -28,6 +29,7 @@ if (cfg.exchange_settings.use_cache) {
   console.log('INFO: Cached market data files will be used (if available).')
 }
 
+console.log('INFO: Current test API hash: ' + apiTestRandomHash)
 console.log('INFO: ^VIX Cron time: \'' + cfg.tickers.volatility.cron_time + '\' with timezone: ' + cfg.tickers.volatility.cron_timezone)
 console.log('INFO: ^GSPC Cron time: \'' + cfg.tickers.stockmarket.cron_time + '\' with timezone: ' + cfg.tickers.stockmarket.cron_timezone)
 
@@ -45,6 +47,14 @@ app.set('telegram_bot', bot)
 
 app.get('/', (req, res) => res.send('Market data bot v' + version))
 app.use('/telegram', telegramRouter)
+app.get(`/test_api/${apiTestRandomHash}/volatil`, (req, res) => {
+  onTickVolatility()
+  res.send('OK')
+})
+app.get(`/test_api/${apiTestRandomHash}/stock`, (req, res) => {
+  onTickStockMarket()
+  res.send('OK')
+})
 
 app.listen(port, host, () => {
   console.log(`INFO: Market Alert Bot v${version} is now running on ${host} on port ${port}.`)
@@ -68,7 +78,7 @@ function onTickVolatility () {
     comm.sendVolatilityUpdate(result)
   })
     .catch(error => {
-      console.error('Error: Something went wrong during getting or processing the volatility data:\n')
+      console.error('Error: Something went wrong during getting or processing the volatility data. With message: ' + error.message + '. Stack:\n')
       console.log(error.stack)
     })
 }
@@ -80,7 +90,7 @@ function onTickStockMarket () {
     comm.sendStockMarketUpdate(result)
   })
     .catch(error => {
-      console.error('Error: Something went wrong during getting or processing the stock market data:\n')
+      console.error('Error: Something went wrong during getting or processing the stock market data. With message: ' + error.message + '. Stack:\n')
       console.log(error.stack)
     })
 }
