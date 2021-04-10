@@ -1,20 +1,19 @@
 exchange_settings:
   use_cache: True # Put to False in production
-  apiKey: "" # Alpha Vantage API Key
+  apiKey: "" # Twelve Data Key
  
 telegram_settings:
-  bot_token: "" # Telegram token you receive from @BotFather
+  bot_token: "" # Telegram token you receive from @BotFather: 1104044500:AAEt0CI4_ZneVx2RJQXlFFfmaWYBW5EYMdA
   public_url: "https://" # Telegram public URL for Webhook
   chat_id: "@" # Telegram chat ID to send to (eg. @channel_name)
   
 tickers:
   volatility:
     params:
-      symbol: "^VIX" # The CBOE Volatility Index
-      function: "TIME_SERIES_INTRADAY" # Intraday time series (within a day period, see intraday_interval)
+      symbol: "VIX" # The CBOE Volatility Index
+      interval: "5min" # Intraday time series of 5 min. interval (within a day period, see intraday_interval)
+      outputsize: 100
       # Note: NYSE market: 6,5 hours open = 390 min./5 min. interval = 78 data points (which will fit within the 100 latest data points)
-      intraday_interval: "5min" # Other options are: 1min, 5min, 15min, 30min, 60min
-      outputsize: "compact" # Default: compact (100 latest data points), full (get the full-length of 20+ years historical data)
     cron_time: "0 15 12,16 * * 1-5" # Notation: Second-Minute-Hour-Day-Month-WeekDay. So, at 12:15:00 and 16:15:00 hours from Monday through Friday    
     cron_timezone: "America/New_York" # NYSE is in New York
     # Extra data for volatility check
@@ -25,8 +24,9 @@ tickers:
       extreme_high_threshold: 60 # VIX index is >= 60%
   stockmarket:
     params:
-      symbol: "^GSPC" # The S&P 500 Index
-      function: "TIME_SERIES_WEEKLY" # Weekly time series
+      symbol: "GSPC" # The S&P 500 Index
+      interval: "1week" # Weekly time series
+      outputsize: 100
     cron_time: "0 20 16 * * 5" # Notation: Second-Minute-Hour-Day-Month-WeekDay. So, at every Friday at 16:20:00 hours (when market is closed)
     cron_timezone: "America/New_York" # NYSE is in New York
     # Extra data for stock market check

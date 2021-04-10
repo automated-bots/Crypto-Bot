@@ -3,6 +3,7 @@
 /cachedDataWeekly.json
 config.yml
 debug.csv
+debug2.csv
 
 # LibreOffice locks
 .~lock.*#

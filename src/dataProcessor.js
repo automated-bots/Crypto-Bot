@@ -5,7 +5,7 @@ const csv = require('fast-csv')
 const fs = require('fs')
 
 // Dump CSV debug data (true/false)
-const DEBUG = false
+const DEBUG = true
 
 class DataProcessor {
   /**
@@ -14,7 +14,7 @@ class DataProcessor {
    * @param {Number} dataPeriod Market data data period used to be analysed
    * @param {Dict} indicatorsConfig Market data technical indicators config
    */
-  constructor (volatilityAlerts, warmupPeriod, dataPeriod, indicatorsConfig) {
+  constructor(volatilityAlerts, warmupPeriod, dataPeriod, indicatorsConfig) {
     this.volatilityAlerts = volatilityAlerts
     this.warmupPeriod = warmupPeriod
     this.dataPeriod = dataPeriod
@@ -28,6 +28,7 @@ class DataProcessor {
    * @returns Results structure
    */
   processVolatility (volatilityData) {
+    const csvData = []
     const result = {
       alert: false,
       level: AlertLevels.NO_ALERT,
@@ -44,11 +45,25 @@ class DataProcessor {
 
     // NYSE Marker opening hours: 9:30 - 16:00 = 6.5 hours open = 390 min.
     // Max data points = 390 min. / 5 .min interval = 78
-    const maxDataPoints = 78
+    const maxDataPoints = 78 // Data only gives back 68
 
     const latestPoint = volatilityData[volatilityData.length - 1]
     const startOfLastDayEpoch = new Date(new Date(latestPoint.time).toDateString()).getTime()
     const todayPoints = volatilityData.filter(data => data.time >= startOfLastDayEpoch)
+
+    if (DEBUG) {
+      // Dump all data
+      for (const tick of volatilityData) {
+        csvData.push({
+          date: Util.dateToString(new Date(tick.time)),
+          high: tick.high,
+          low: tick.low
+        })
+      }
+      // Dump verbose data to CSV file
+      const ws = fs.createWriteStream('debug.csv')
+      csv.write(csvData, { headers: true }).pipe(ws)
+    }
 
     // Calculate highest & lowest prices from volatility index (^VIX)
     const highPrices = todayPoints.map(data => data.high) // Use high price for highest calc
@@ -103,7 +118,7 @@ class DataProcessor {
    * @param {Array} sp500Data ^GSPC index data
    * @returns Result structure
    */
-  processStockMarket (sp500Data) {
+  processStockMarket(sp500Data) {
     const result = { crosses: [] }
     const csvData = []
     // Create technical indicator (Percentage Price Oscillator: PPO)
@@ -148,7 +163,7 @@ class DataProcessor {
         if (previousPPO !== null) {
           // Fill-in the PPO (MACD) results
           const bullish = Math.sign(previousPPO.hist) === -1 &&
-          (Math.sign(currentPPO.hist) === 1 || Math.sign(currentPPO.hist) === 0)
+            (Math.sign(currentPPO.hist) === 1 || Math.sign(currentPPO.hist) === 0)
           if (bullish) {
             result.crosses.push({
               type: 'bullish',
@@ -163,7 +178,7 @@ class DataProcessor {
             })
           }
           const bearish = (Math.sign(previousPPO.hist) === 0 || Math.sign(previousPPO.hist) === 1) &&
-          (Math.sign(currentPPO.hist) === -1)
+            (Math.sign(currentPPO.hist) === -1)
           if (bearish) {
             result.crosses.push({
               type: 'bearish',
@@ -185,7 +200,7 @@ class DataProcessor {
 
     // Dump verbose data to CSV file
     if (DEBUG) {
-      const ws = fs.createWriteStream('debug.csv')
+      const ws = fs.createWriteStream('debug2.csv')
       csv.write(csvData, { headers: true }).pipe(ws)
     }
     return result

@@ -30,8 +30,8 @@ if (cfg.exchange_settings.use_cache) {
 }
 
 console.log('INFO: Current test API hash: ' + apiTestRandomHash)
-console.log('INFO: ^VIX Cron time: \'' + cfg.tickers.volatility.cron_time + '\' with timezone: ' + cfg.tickers.volatility.cron_timezone)
-console.log('INFO: ^GSPC Cron time: \'' + cfg.tickers.stockmarket.cron_time + '\' with timezone: ' + cfg.tickers.stockmarket.cron_timezone)
+console.log('INFO: VIX index Cron time: \'' + cfg.tickers.volatility.cron_time + '\' with timezone: ' + cfg.tickers.volatility.cron_timezone)
+console.log('INFO: GSPC index Cron time: \'' + cfg.tickers.stockmarket.cron_time + '\' with timezone: ' + cfg.tickers.stockmarket.cron_timezone)
 
 const bot = new TelegramBot(cfg.telegram_settings.bot_token)
 bot.setWebHook(`${cfg.telegram_settings.public_url}/telegram/bot${TelegramSecretHash}`)
@@ -98,9 +98,9 @@ function onTickStockMarket () {
 // Cron job for onTickVolatility()
 const job = new CronJob(cfg.tickers.volatility.cron_time, onTickVolatility, null, false, cfg.tickers.volatility.cron_timezone)
 job.start()
-console.log('INFO: Cron triggers scheduled for ^VIX (upcoming 6 shown):\n - ' + job.nextDates(6).join('\n - '))
+console.log('INFO: Cron triggers scheduled for VIX (upcoming 6 shown):\n - ' + job.nextDates(6).join('\n - '))
 
 // Cron job for onTickStockMarket()
 const job2 = new CronJob(cfg.tickers.stockmarket.cron_time, onTickStockMarket, null, false, cfg.tickers.stockmarket.cron_timezone)
 job2.start()
-console.log('INFO: Cron triggers scheduled for ^GSPC (upcoming 3 shown):\n - ' + job2.nextDates(3).join('\n - '))
+console.log('INFO: Cron triggers scheduled for GSPC (upcoming 3 shown):\n - ' + job2.nextDates(3).join('\n - '))
