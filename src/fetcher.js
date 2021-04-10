@@ -57,6 +57,13 @@ class Fetcher {
       return this.api.get('/query', {
         params: params
       })
+        .then(response => {
+          if (!Object.prototype.hasOwnProperty.call(response.data, dataKey)) {
+            return Promise.reject(new Error('Missing data key in response. HTTP status code: ' + response.status + ' with text : ' + response.statusText + '. Alpha Vantage reponse:\n' + JSON.stringify(response.data)))
+          } else {
+            return response
+          }
+        })
         .then(response => response.data[dataKey])
         .then(timeseries => this.processAlphaVantageSeries(timeseries, cacheFile))
         .catch(error => Promise.reject(error))
@@ -70,7 +77,7 @@ class Fetcher {
    */
   processAlphaVantageSeries (timeseries, cacheFile) {
     if (typeof (timeseries) === 'undefined' || timeseries === null || timeseries.length <= 0) {
-      return Promise.reject(new Error('Empty data from Alpha Vantage API'))
+      return Promise.reject(new Error('Still invalid or empty data received from Alpha Vantage API'))
     }
     const series = Object.keys(timeseries).reverse().map(timestamp =>
       Candle.createIndex(
