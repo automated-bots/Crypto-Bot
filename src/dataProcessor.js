@@ -14,7 +14,7 @@ class DataProcessor {
    * @param {Number} dataPeriod Market data data period used to be analysed
    * @param {Dict} indicatorsConfig Market data technical indicators config
    */
-  constructor(volatilityAlerts, warmupPeriod, dataPeriod, indicatorsConfig) {
+  constructor (volatilityAlerts, warmupPeriod, dataPeriod, indicatorsConfig) {
     this.volatilityAlerts = volatilityAlerts
     this.warmupPeriod = warmupPeriod
     this.dataPeriod = dataPeriod
@@ -119,7 +119,7 @@ class DataProcessor {
    * @param {Array} sp500Data ^GSPC index data
    * @returns Result structure
    */
-  processStockMarket(sp500Data) {
+  processStockMarket (sp500Data) {
     const result = { crosses: [] }
     const csvData = []
     // Create technical indicator (Percentage Price Oscillator: PPO)
