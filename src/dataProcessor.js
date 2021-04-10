@@ -45,7 +45,8 @@ class DataProcessor {
 
     // NYSE Marker opening hours: 9:30 - 16:00 = 6.5 hours open = 390 min.
     // Max data points = 390 min. / 5 .min interval = 78
-    const maxDataPoints = 78 // Data only gives back 68
+    // TODO: TwelveData API BUG!!! Data only gives back 68 points/day!? The data only starts sometimes at 10:30 or even stops as early as 15:10 instead of 16:00....
+    const maxDataPoints = 78
 
     const latestPoint = volatilityData[volatilityData.length - 1]
     const startOfLastDayEpoch = new Date(new Date(latestPoint.time).toDateString()).getTime()
