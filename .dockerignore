@@ -2,6 +2,7 @@
 data
 node_modules
 Dockerfile
+CODEOWNERS
 
 /cachedData.json
 /cachedDataWeekly.json
