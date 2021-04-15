@@ -3,13 +3,13 @@ const Util = require('./util')
 
 class Communicate {
   /**
-   * @param {Dict} volatilityAlerts Volatility alert thresholds
    * @param {Object} bot Telegram Bot Object
+   * @param {Dict} volatilityAlerts Volatility alert thresholds
    * @param {Number} botChatID Chat ID number
    */
-  constructor (volatilityAlerts, bot, botChatID) {
-    this.volatilityAlerts = volatilityAlerts
+  constructor (bot, volatilityAlerts, botChatID) {
     this.bot = bot
+    this.volatilityAlerts = volatilityAlerts
     this.botChatID = botChatID
     // Don't spam the channel, save the previous alert to compare for changes
     this.prevVolatilityAlertLevel = AlertLevels.NO_ALERT

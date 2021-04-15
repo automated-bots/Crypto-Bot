@@ -11,53 +11,65 @@ const Fetcher = require('./fetcher')
 const DataProcessor = require('./dataProcessor')
 const CronJob = require('cron').CronJob
 const crypto = require('crypto')
-global.TelegramSecretHash = crypto.randomBytes(20).toString('hex')
-const apiTestRandomHash = crypto.randomBytes(40).toString('hex')
+const TELEGRAM_SECRET_HASH = crypto.randomBytes(20).toString('hex')
+const TEST_API_SECRET_HASH = crypto.randomBytes(40).toString('hex')
 const TelegramBot = require('node-telegram-bot-api')
 const express = require('express')
-// const cors = require('cors')
 const Communicate = require('./communicate')
 const { version } = require('../package.json')
-const app = express()
-const telegramRouter = require('./routes/telegram')
 
 const cfg = YAML.parse(fs.readFileSync('config.yml', 'utf8').toString())
 if (!cfg) {
   throw new Error('Please create a config.yml file.')
 }
 if (cfg.exchange_settings.use_cache) {
-  console.log('INFO: Cached market data files will be used (if available).')
+  console.log('WARN: Cached market data files will be used (if available).')
 }
 
-console.log('INFO: Current test API hash: ' + apiTestRandomHash)
+console.log('INFO: Using Telegram channel chat ID: ' + cfg.telegram_settings.chat_id)
+console.log('INFO: Current test API hash: ' + TEST_API_SECRET_HASH)
 console.log('INFO: VIX index Cron time: \'' + cfg.tickers.volatility.cron_time + '\' with timezone: ' + cfg.tickers.volatility.cron_timezone)
 console.log('INFO: GSPC index Cron time: \'' + cfg.tickers.stockmarket.cron_time + '\' with timezone: ' + cfg.tickers.stockmarket.cron_timezone)
 
+// Setup Telegram bot
 const bot = new TelegramBot(cfg.telegram_settings.bot_token)
-bot.setWebHook(`${cfg.telegram_settings.public_url}/telegram/bot${TelegramSecretHash}`)
-bot.onText(/\/start/, (msg) => {
-  console.log('INFO: Set chat id: ' + msg.chat.id)
-  app.set('chat_id', msg.chat.id)
-})
 
-// app.use(cors())
+// Inform the Telegram servers of the new webhook url
+bot.setWebHook(`${cfg.telegram_settings.public_url}/bot${TELEGRAM_SECRET_HASH}`)
+
+const app = express()
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-app.set('telegram_bot', bot)
 
-app.get('/', (req, res) => res.send('Market data bot v' + version))
-app.use('/telegram', telegramRouter)
-app.get(`/test_api/${apiTestRandomHash}/volatil`, (req, res) => {
+// Receive Telegram updates
+app.post(`/bot${TELEGRAM_SECRET_HASH}`, (req, res) => {
+  bot.processUpdate(req.body)
+  res.sendStatus(200)
+})
+// Display version
+app.get('/', (req, res) => res.send('<h1>Market data bot</h1> Market data index bot v' + version + '. <br/><br/>By: Melroy van den Berg'))
+
+// Test APIs
+app.get(`/test_api/${TEST_API_SECRET_HASH}/volatil`, (req, res) => {
   onTickVolatility()
   res.send('OK')
 })
-app.get(`/test_api/${apiTestRandomHash}/stock`, (req, res) => {
+app.get(`/test_api/${TEST_API_SECRET_HASH}/stock`, (req, res) => {
   onTickStockMarket()
   res.send('OK')
 })
 
+// Start Express Server
 app.listen(port, host, () => {
-  console.log(`INFO: Market Alert Bot v${version} is now running on ${host} on port ${port}.`)
+  console.log(`INFO: Market Alert Index Bot v${version} is now running on ${host} on port ${port}.`)
+})
+
+// Simple ping command
+bot.onText(/\/ping/, () => {
+  bot.sendMessage(cfg.telegram_settings.chat_id, 'Pong').catch(error => {
+    console.log('ERROR: Could not send pong message, due to error: ' + error.message)
+  })
 })
 
 // Create API Fetcher, data processor and communication instances
@@ -66,7 +78,7 @@ const dataProcessor = new DataProcessor(cfg.tickers.volatility.alerts,
   cfg.tickers.stockmarket.warmup_period,
   cfg.tickers.stockmarket.data_period,
   cfg.tickers.stockmarket.indicators)
-const comm = new Communicate(cfg.tickers.volatility.alerts, bot, cfg.telegram_settings.chat_id)
+const comm = new Communicate(bot, cfg.tickers.volatility.alerts, cfg.telegram_settings.chat_id)
 
 /**
  * Triggers on cron job
