@@ -54,7 +54,7 @@ class Fetcher {
           }
         })
         .then(response => response.data.values)
-        .then(timeseries => this.processAlphaVantageSeries(timeseries, cacheFile))
+        .then(timeseries => this.postProcessingTimeseries(timeseries, cacheFile))
         .catch(error => Promise.reject(error))
     }
   }
@@ -64,7 +64,7 @@ class Fetcher {
    * @param {Array} timeseries Time-series candle data
    * @param {String} cacheFile Filename store data to (if cache enabled)
    */
-  processAlphaVantageSeries (timeseries, cacheFile) {
+  postProcessingTimeseries (timeseries, cacheFile) {
     if (typeof (timeseries) === 'undefined' || timeseries === null || timeseries.length <= 0) {
       return Promise.reject(new Error('Still invalid or empty data received from API'))
     }

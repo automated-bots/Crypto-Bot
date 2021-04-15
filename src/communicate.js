@@ -23,11 +23,10 @@ class Communicate {
   /**
    * Send message to Telegram channel about volatility (only when needed)
    *
-   * TODO: Send link towards tradingview or something?
-   *
    * @param {Object} result Volatility result structure
    */
   sendVolatilityUpdate (result) {
+    let messageSend = false
     let message = '❗*Stock Alert*❗\n^VIX ticker changed alert level: '
     // Inform the user regarding the change in alert level
     message += this.volatilityAlertToString(result.level)
@@ -52,19 +51,23 @@ class Communicate {
         }
         // Set current level as previous
         this.prevVolatilityAlertLevel = result.level
+        messageSend = true
       }
     } else {
       // Back to normal: curently no alert and still a change in alert level (with respect to previous alert level)
       if (this.prevVolatilityAlertLevel !== result.level) {
         this.sendTelegramMessage(message)
+        messageSend = true
       }
+    }
+
+    if (messageSend !== false) {
+      console.log('INFO: No VIX change detected. Don\'t send a message update.')
     }
   }
 
   /**
    * Send message to Telegram channel about stock market (only when needed)
-   *
-   * TODO: Send link towards tradingview or something?
    *
    * @param {Object} result Stock market result structure
    */
