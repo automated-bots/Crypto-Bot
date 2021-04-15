@@ -1,6 +1,6 @@
 exchange_settings:
   use_cache: True # Put to False in production
-  apiKey: "" # Twelve Data Key
+  api_token: "" # Exchange XYZ
  
 telegram_settings:
   bot_token: "" # Telegram token you receive from @BotFather: 1104044500:AAEt0CI4_ZneVx2RJQXlFFfmaWYBW5EYMdA
