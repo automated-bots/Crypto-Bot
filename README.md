@@ -32,7 +32,7 @@ Use the [DockerHub Docker image](https://hub.docker.com/repository/docker/danger
 3. Start Docker container by providing the `config.yml` from outside the Docker container (by default using current working directory, `pwd`, on your host machine):
 
     ```sh
-    docker run --restart always -p 127.0.0.1:3008:3008 -v $(pwd)/config.yml:/app/config.yml -d danger89/crypto-bot
+    docker run --restart always -p 127.0.0.1:3010:3010 -v $(pwd)/config.yml:/app/config.yml -d danger89/crypto-bot
     ```
 
 *Note:* The command above should pull the image automatically from Docker Hub.
