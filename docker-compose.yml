@@ -1,10 +1,10 @@
 version: "3"
 services:
-  index_bot:
-    image: danger89/index-bot:latest
-    container_name: index_bot
+  crypto_bot:
+    image: danger89/crypto-bot:latest
+    container_name: crypto_bot
     restart: always
     volumes:
       - /home/username/folder/to/config.yml:/app/config.yml
     ports:
-      - "3008:3008"
+      - "3010:3010"
