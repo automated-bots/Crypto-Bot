@@ -2,7 +2,7 @@
 process.env.NTBA_FIX_319 = 1
 process.env.NTBA_FIX_350 = 1
 // Constants
-const port = process.env.PORT || 3008
+const port = process.env.PORT || 3010
 const host = process.env.HOST || '0.0.0.0'
 
 const fs = require('fs')
