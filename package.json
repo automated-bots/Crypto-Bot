@@ -1,7 +1,7 @@
 {
-  "name": "index-bot",
+  "name": "crypto-bot",
   "version": "1.0.0",
-  "description": "VIX Index bot notifier",
+  "description": "Crypto tokens bot notifier",
   "main": "src/index.js",
   "scripts": {
     "start": "node .",
@@ -12,15 +12,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.melroy.org:melroy/index-bot.git"
+    "url": "git@gitlab.melroy.org:melroy/crypto-bot.git"
   },
   "keywords": [
-    "index",
+    "crypto",
+    "exchange",
+    "bitcoin",
+    "ethereum",
     "bot",
-    "VIX",
     "telegram",
-    "stock",
-    "market",
     "tracker"
   ],
   "author": "Melroy van den Berg <melroy@melroy.org>",
