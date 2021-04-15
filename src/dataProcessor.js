@@ -114,6 +114,7 @@ class DataProcessor {
 
   /**
    * Process the S&P 500 (^GSPC) index, using weekly data.
+   * It's creating a PPO (%) indicator, then checking on MACD crosses from the histogram (PPO - Signal Line)
    *
    * @param {Array} sp500Data ^GSPC index data
    * @returns Result structure

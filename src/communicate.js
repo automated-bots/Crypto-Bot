@@ -21,7 +21,8 @@ class Communicate {
   }
 
   /**
-   * Send message to Telegram channel about volatility (only when needed)
+   * Send message to Telegram channel about volatility (only when needed).
+   * It will send you a message only when the VIX index detected a change in the alert levels
    *
    * @param {Object} result Volatility result structure
    */
@@ -62,16 +63,18 @@ class Communicate {
     }
 
     if (messageSend !== false) {
-      console.log('INFO: No VIX change detected. Don\'t send a message update.')
+      console.log('DEBUG: No VIX change detected. Don\'t send a message update.')
     }
   }
 
   /**
-   * Send message to Telegram channel about stock market (only when needed)
+   * Send message to Telegram channel about stock market (only when needed).
+   * It will send you a message whenever there is a MACD cross detected in the PPO histogram.
    *
    * @param {Object} result Stock market result structure
    */
   sendStockMarketUpdate (result) {
+    let messageSend = false
     for (const cross of result.crosses) {
       // Only send messages that are newer that the previous send onces (don't spam)
       const currentTime = cross.time.getTime()
@@ -86,18 +89,22 @@ class Communicate {
         switch (cross.type) {
           case 'bearish':
             message += 'towards a bearish trend 🌧.'
-            message += `\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high}. Low: ${low}. Close: ${close}. Date: ${dateString}.`
+            message += `\n\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high}. Low: ${low}. Close: ${close}. MACD cross date: ${dateString}.`
             message += '\n\n[Open ^GSPC Chart](https://finance.yahoo.com/chart/^GSPC)'
             break
           case 'bullish':
             message += 'towards a bullish trend 🔆!'
-            message += `\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high}. Low: ${low}. Close: ${close}. Date: ${dateString}.`
+            message += `\n\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high}. Low: ${low}. Close: ${close}. MACD cross date: ${dateString}.`
             message += '\n\n[Open ^GSPC Chart](https://finance.yahoo.com/chart/^GSPC)'
             break
         }
         this.sendTelegramMessage(message)
         this.prevLastCrossTime = currentTime
+        messageSend = true
       }
+    }
+    if (messageSend !== false) {
+      console.log('DEBUG: No GSPC crosses detected. Don\'t send a message update.')
     }
   }
 
