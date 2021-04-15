@@ -20,7 +20,7 @@ class Fetcher {
    *
    * @param {Object} exchangeParams Params dictionary object containing: 'symbol', 'interval' and 'outputsize'
    */
-  getData (exchangeParams) {
+  async getData (exchangeParams) {
     let cacheFile = 'cachedData.json'
     if (exchangeParams.interval === '1week') {
       cacheFile = 'cachedDataWeekly.json'
@@ -32,7 +32,7 @@ class Fetcher {
       if (data) {
         return Promise.resolve(JSON.parse(data))
       } else {
-        throw new Error('Empty data in history file.')
+        return Promise.reject(new Error('Empty data in history file.'))
       }
     } else {
       const params = {
@@ -43,19 +43,16 @@ class Fetcher {
         apikey: this.exchangeSettings.apiKey
       }
       // Both data arrays should contain data bout OHLC and datetime
-      return this.api.get('/time_series', {
-        params: params
-      })
-        .then(response => {
-          if (!Object.prototype.hasOwnProperty.call(response.data, 'values')) {
-            return Promise.reject(new Error('Missing values key in response. HTTP status code: ' + response.status + ' with text : ' + response.statusText + '. Reponse:\n' + JSON.stringify(response.data)))
-          } else {
-            return response
-          }
-        })
-        .then(response => response.data.values)
-        .then(timeseries => this.postProcessingTimeseries(timeseries, cacheFile))
-        .catch(error => Promise.reject(error))
+      try {
+        const response = await this.api.get('/time_series', { params: params })
+        if (!Object.prototype.hasOwnProperty.call(response.data, 'values')) {
+          return Promise.reject(new Error('Missing values key in response. HTTP status code: ' + response.status + ' with text : ' + response.statusText + '. Reponse:\n' + JSON.stringify(response.data)))
+        }
+        return this.postProcessingTimeseries(response.data.values, cacheFile)
+      } catch (error) {
+        console.log(error)
+        throw new Error(error)
+      }
     }
   }
 
@@ -81,7 +78,7 @@ class Fetcher {
         if (err) throw err
       })
     }
-    return Promise.resolve(series)
+    return series
   }
 }
 

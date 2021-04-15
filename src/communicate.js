@@ -62,7 +62,7 @@ class Communicate {
       }
     }
 
-    if (messageSend !== false) {
+    if (messageSend === false) {
       console.log('DEBUG: No VIX change detected. Don\'t send a message update.')
     }
   }
@@ -103,7 +103,7 @@ class Communicate {
         messageSend = true
       }
     }
-    if (messageSend !== false) {
+    if (messageSend === false) {
       console.log('DEBUG: No GSPC crosses detected. Don\'t send a message update.')
     }
   }

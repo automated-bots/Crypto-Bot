@@ -72,6 +72,13 @@ bot.onText(/\/ping/, () => {
   })
 })
 
+/* const bot = {}
+bot.sendMessage = (a, b, c) => {
+  return new Promise(function (resolve, reject) {
+    reject('error')
+  })
+} */
+
 // Create API Fetcher, data processor and communication instances
 const fetcher = new Fetcher(cfg.exchange_settings)
 const dataProcessor = new DataProcessor(cfg.tickers.volatility.alerts,
@@ -85,10 +92,11 @@ const comm = new Communicate(bot, cfg.tickers.volatility.alerts, cfg.telegram_se
  */
 function onTickVolatility () {
   // Get market data points
-  fetcher.getData(cfg.tickers.volatility.params).then(data => {
-    const result = dataProcessor.processVolatility(data)
-    comm.sendVolatilityUpdate(result)
-  })
+  fetcher.getData(cfg.tickers.volatility.params)
+    .then(data => {
+      const result = dataProcessor.processVolatility(data)
+      comm.sendVolatilityUpdate(result)
+    })
     .catch(error => {
       console.error('Error: Something went wrong during getting or processing the volatility data. With message: ' + error.message + '. Stack:\n')
       console.log(error.stack)
@@ -97,10 +105,11 @@ function onTickVolatility () {
 
 function onTickStockMarket () {
   // Get market data points
-  fetcher.getData(cfg.tickers.stockmarket.params).then(data => {
-    const result = dataProcessor.processStockMarket(data)
-    comm.sendStockMarketUpdate(result)
-  })
+  fetcher.getData(cfg.tickers.stockmarket.params)
+    .then(data => {
+      const result = dataProcessor.processStockMarket(data)
+      comm.sendStockMarketUpdate(result)
+    })
     .catch(error => {
       console.error('Error: Something went wrong during getting or processing the stock market data. With message: ' + error.message + '. Stack:\n')
       console.log(error.stack)

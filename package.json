@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node .",
     "memory": "node --expose-gc --inspect .",
+    "debug": "node inspect . --debug",
     "lint": "eslint src/ --ext .js",
     "fix": "eslint src/ --ext .js --fix"
   },
