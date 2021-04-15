@@ -40,7 +40,7 @@ class Fetcher {
         interval: exchangeParams.interval,
         outputsize: exchangeParams.outputsize,
         order: 'ASC',
-        apikey: this.exchangeSettings.apiKey
+        apikey: this.exchangeSettings.api_token
       }
       // Both data arrays should contain data bout OHLC and datetime
       try {
