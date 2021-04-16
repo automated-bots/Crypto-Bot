@@ -1,4 +1,3 @@
-const AlertLevels = require('./alertLevelsEnum')
 const PPO = require('./indicators/ppo')
 const Util = require('./util')
 const csv = require('fast-csv')
@@ -9,117 +8,24 @@ const DEBUG = true
 
 class DataProcessor {
   /**
-   * @param {Dict} volatilityAlerts Volatility alert thresholds
-   * @param {Number} warmupPeriod Warming-up period for market data
-   * @param {Number} dataPeriod Market data data period used to be analysed
-   * @param {Dict} indicatorsConfig Market data technical indicators config
+   * @param {Number} warmupPeriod Warming-up period for crypto market data
+   * @param {Number} dataPeriod Crypto market data data period used to be analysed
+   * @param {Dict} indicatorsConfig Crypto market data technical indicators config
    */
-  constructor (volatilityAlerts, warmupPeriod, dataPeriod, indicatorsConfig) {
-    this.volatilityAlerts = volatilityAlerts
+  constructor (warmupPeriod, dataPeriod, indicatorsConfig) {
     this.warmupPeriod = warmupPeriod
     this.dataPeriod = dataPeriod
     this.indicatorsConfig = indicatorsConfig
   }
 
   /**
-   * Process the intraday (5 min) candle data,
-   * only process the last day volatility data points
-   * @param {Array} volatilityData Volatility index data series (^VIX)
-   * @returns Results structure
-   */
-  processVolatility (volatilityData) {
-    const csvData = []
-    const result = {
-      alert: false,
-      level: AlertLevels.NO_ALERT,
-      percentage: 0,
-      latest_close_price: 0,
-      latest_time: 0,
-      all_points: false,
-      dual_alert: {
-        alert: false,
-        level: AlertLevels.NO_ALERT,
-        percentage: 0
-      }
-    }
-
-    // NYSE Marker opening hours: 9:30 - 16:00 = 6.5 hours open = 390 min.
-    // Max data points = 390 min. / 5 .min interval = 78 (maybe 79, if you also consider 16:00 a data point)
-    const maxDataPoints = 78
-
-    const latestPoint = volatilityData[volatilityData.length - 1]
-    const startOfLastDayEpoch = new Date(new Date(latestPoint.time).toDateString()).getTime()
-    const todayPoints = volatilityData.filter(data => data.time >= startOfLastDayEpoch)
-
-    if (DEBUG) {
-      // Dump all data
-      for (const tick of volatilityData) {
-        csvData.push({
-          date: Util.dateToString(new Date(tick.time)),
-          high: tick.high,
-          low: tick.low
-        })
-      }
-      // Dump verbose data to CSV file
-      const ws = fs.createWriteStream('debug.csv')
-      csv.write(csvData, { headers: true }).pipe(ws)
-    }
-
-    // Calculate highest & lowest prices from volatility index (^VIX)
-    const highPrices = todayPoints.map(data => data.high) // Use high price for highest calc
-    const highestPrice = Math.max(...highPrices)
-    const lowPrices = todayPoints.map(data => data.low) // Use low price for lowest calc
-    const lowestPrice = Math.min(...lowPrices)
-
-    // Fill-in the volatility results
-    if (highestPrice >= this.volatilityAlerts.extreme_high_threshold) {
-      result.alert = true
-      result.level = AlertLevels.EXTREME_HIGH_LEVEL
-      result.percentage = highestPrice
-    } else if (highestPrice >= this.volatilityAlerts.high_threshold) {
-      result.alert = true
-      result.level = AlertLevels.HIGH_LEVEL
-      result.percentage = highestPrice
-    }
-
-    if (lowestPrice < this.volatilityAlerts.extreme_low_threshold) {
-      if (!result.alert) {
-        result.alert = true
-        result.level = AlertLevels.EXTREME_LOW_LEVEL
-        result.percentage = lowestPrice
-      } else {
-        // Within the same day both a high threshold and low threshold was reached?
-        result.dual_alert.alert = true
-        result.dual_alert.level = AlertLevels.EXTREME_LOW_LEVEL
-        result.dual_alert.percentage = lowestPrice
-      }
-    } else if (lowestPrice < this.volatilityAlerts.low_threshold) {
-      if (!result.alert) {
-        result.alert = true
-        result.level = AlertLevels.LOW_LEVEL
-        result.percentage = lowestPrice
-      } else {
-        // Within the same day both a high threshold and low threshold was reached?
-        result.dual_alert.alert = true
-        result.dual_alert.level = AlertLevels.LOW_LEVEL
-        result.dual_alert.percentage = lowestPrice
-      }
-    }
-
-    result.latest_close_price = latestPoint.close
-    result.latest_time = new Date(latestPoint.time)
-    result.all_points = (todayPoints.length === maxDataPoints)
-    return result
-  }
-
-  /**
-   * Process the S&P 500 (^GSPC) index, using weekly data.
+   * Process the crypto market data, using weekly data.
    * It's creating a PPO (%) indicator, then checking on MACD crosses from the histogram (PPO - Signal Line)
    *
-   * @param {Array} sp500Data ^GSPC index data
+   * @param {Array} sp500Data Crypto data
    * @returns Result structure
    */
-  processStockMarket (sp500Data) {
+  processCryptoMarket (sp500Data) {
     const result = { crosses: [] }
     const csvData = []
     // Create technical indicator (Percentage Price Oscillator: PPO)

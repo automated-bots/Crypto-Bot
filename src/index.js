@@ -28,8 +28,7 @@ if (cfg.exchange_settings.use_cache) {
 
 console.log('INFO: Using Telegram channel chat ID: ' + cfg.telegram_settings.chat_id)
 console.log('INFO: Current test API hash: ' + TEST_API_SECRET_HASH)
-console.log('INFO: VIX index Cron time: \'' + cfg.tickers.volatility.cron_time + '\' with timezone: ' + cfg.tickers.volatility.cron_timezone)
-console.log('INFO: GSPC index Cron time: \'' + cfg.tickers.stockmarket.cron_time + '\' with timezone: ' + cfg.tickers.stockmarket.cron_timezone)
+console.log('INFO: Current crypto coins will be tracked: ' + cfg.tickers.crypto_symbols_pairs)
 
 // Setup Telegram bot
 const bot = new TelegramBot(cfg.telegram_settings.bot_token)
@@ -51,18 +50,14 @@ app.post(`/bot${TELEGRAM_SECRET_HASH}`, (req, res) => {
 app.get('/', (req, res) => res.send('<h1>Market data bot</h1> Market data index bot v' + version + '. <br/><br/>By: Melroy van den Berg'))
 
 // Test APIs
-app.get(`/test_api/${TEST_API_SECRET_HASH}/volatil`, (req, res) => {
-  onTickVolatility()
-  res.send('OK')
-})
-app.get(`/test_api/${TEST_API_SECRET_HASH}/stock`, (req, res) => {
-  onTickStockMarket()
+app.get(`/test_api/${TEST_API_SECRET_HASH}/crypto`, (req, res) => {
+  onTickCryptoExchange()
   res.send('OK')
 })
 
 // Start Express Server
 app.listen(port, host, () => {
-  console.log(`INFO: Market Alert Index Bot v${version} is now running on ${host} on port ${port}.`)
+  console.log(`INFO: Crypto Exchange Bot v${version} is now running on ${host} on port ${port}.`)
 })
 
 // Simple ping command
@@ -81,34 +76,21 @@ bot.sendMessage = (a, b, c) => {
 
 // Create API Fetcher, data processor and communication instances
 const fetcher = new Fetcher(cfg.exchange_settings)
-const dataProcessor = new DataProcessor(cfg.tickers.volatility.alerts,
-  cfg.tickers.stockmarket.warmup_period,
-  cfg.tickers.stockmarket.data_period,
-  cfg.tickers.stockmarket.indicators)
-const comm = new Communicate(bot, cfg.tickers.volatility.alerts, cfg.telegram_settings.chat_id)
+const dataProcessor = new DataProcessor(
+  cfg.tickers.warmup_period,
+  cfg.tickers.data_period,
+  cfg.tickers.indicators)
+const comm = new Communicate(bot, cfg.telegram_settings.chat_id)
 
 /**
- * Triggers on cron job
+ * Trigger for cron job
  */
-function onTickVolatility () {
+function onTickCryptoExchange () {
   // Get market data points
-  fetcher.getData(cfg.tickers.volatility.params)
+  fetcher.getData(cfg.tickers.params)
     .then(data => {
-      const result = dataProcessor.processVolatility(data)
-      comm.sendVolatilityUpdate(result)
-    })
-    .catch(error => {
-      console.error('Error: Something went wrong during getting or processing the volatility data. With message: ' + error.message + '. Stack:\n')
-      console.log(error.stack)
-    })
-}
-
-function onTickStockMarket () {
-  // Get market data points
-  fetcher.getData(cfg.tickers.stockmarket.params)
-    .then(data => {
-      const result = dataProcessor.processStockMarket(data)
-      comm.sendStockMarketUpdate(result)
+      const result = dataProcessor.processCryptoMarket(data)
+      comm.sendCryptoMarketUpdate(result)
     })
     .catch(error => {
       console.error('Error: Something went wrong during getting or processing the stock market data. With message: ' + error.message + '. Stack:\n')
@@ -116,12 +98,8 @@ function onTickStockMarket () {
     })
 }
 
-// Cron job for onTickVolatility()
-const job = new CronJob(cfg.tickers.volatility.cron_time, onTickVolatility, null, false, cfg.tickers.volatility.cron_timezone)
+// Cron job for onTickCryptoExchange()
+// Note: set utcOffset to zero (UTC)
+const job = new CronJob(cfg.tickers.cron_time, onTickCryptoExchange, null, false, null, null, null, 0)
 job.start()
-console.log('INFO: Cron triggers scheduled for VIX (upcoming 6 shown):\n - ' + job.nextDates(6).join('\n - '))
-
-// Cron job for onTickStockMarket()
-const job2 = new CronJob(cfg.tickers.stockmarket.cron_time, onTickStockMarket, null, false, cfg.tickers.stockmarket.cron_timezone)
-job2.start()
-console.log('INFO: Cron triggers scheduled for GSPC (upcoming 3 shown):\n - ' + job2.nextDates(3).join('\n - '))
+console.log('INFO: Cron triggers scheduled for (upcoming 10 shown):\n - ' + job.nextDates(10).join('\n - '))
