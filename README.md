@@ -57,7 +57,7 @@ Follow the steps:
 The following settings require definitely some attention during setup:
 
 * `exchange_settings -> use_cache` - Set to `False` to not use any local caching, needed for production!
-* `exchange_settings -> api_token` - API token of ...
+* `exchange_settings -> api_token` - API token of twelvedata - [Create a free API token on their website](https://twelvedata.com/apikey)
 * `telegram_settings -> bot_token` - Token from Telegram, created via [@BotFather](https://telegram.me/BotFather)
 * `telegram_settings -> public_url` - Telegram public URL for Webhook
 * `telegram_settings -> chat_id` - Telegram channel name including '@' or any other chat ID.
