@@ -9,7 +9,7 @@ telegram_settings:
   
 tickers:
   params:
-    crypto_symbols_pairs: [ "BTC/USD", "ETH/USD" ]
+    crypto_symbols_pairs: [ "BTC/USD", "ETH/USD", "BNB/USD", "ADA/USD" ]
     exchange: "Binance" # Default timezone for Binance data is UTC (Coordinated Universal Time)
     interval: "1week"
     outputsize: 100
