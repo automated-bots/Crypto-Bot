@@ -14,7 +14,7 @@ const crypto = require('crypto')
 const TELEGRAM_SECRET_HASH = crypto.randomBytes(20).toString('hex')
 // const TEST_API_SECRET_HASH = crypto.randomBytes(40).toString('hex')
 const TEST_API_SECRET_HASH = 'secret'
-const TelegramBot = require('node-telegram-bot-api')
+// const TelegramBot = require('node-telegram-bot-api')
 const express = require('express')
 const Communicate = require('./communicate')
 const { version } = require('../package.json')
@@ -32,10 +32,10 @@ console.log('INFO: Current test API hash: ' + TEST_API_SECRET_HASH)
 console.log('INFO: Current crypto coins will be tracked: ' + cfg.tickers.params.crypto_symbols_pairs)
 
 // Setup Telegram bot
-//const bot = new TelegramBot(cfg.telegram_settings.bot_token)
+// const bot = new TelegramBot(cfg.telegram_settings.bot_token)
 
 // Inform the Telegram servers of the new webhook url
-//bot.setWebHook(`${cfg.telegram_settings.public_url}/bot${TELEGRAM_SECRET_HASH}`)
+// bot.setWebHook(`${cfg.telegram_settings.public_url}/bot${TELEGRAM_SECRET_HASH}`)
 
 const app = express()
 
@@ -44,7 +44,7 @@ app.use(express.urlencoded({ extended: false }))
 
 // Receive Telegram updates
 app.post(`/bot${TELEGRAM_SECRET_HASH}`, (req, res) => {
-  //bot.processUpdate(req.body)
+  // bot.processUpdate(req.body)
   res.sendStatus(200)
 })
 // Display version
@@ -71,7 +71,7 @@ app.listen(port, host, () => {
 const bot = {}
 bot.sendMessage = (a, b, c) => {
   return new Promise(function (resolve, reject) {
-    reject('error')
+    reject(new Error('error'))
   })
 }
 
