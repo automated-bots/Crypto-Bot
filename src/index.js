@@ -47,7 +47,7 @@ app.post(`/bot${TELEGRAM_SECRET_HASH}`, (req, res) => {
   res.sendStatus(200)
 })
 // Display version
-app.get('/', (req, res) => res.send('<h1>Market data bot</h1> Market data index bot v' + version + '. <br/><br/>By: Melroy van den Berg'))
+app.get('/', (req, res) => res.send('<h1>Crypto Alert bot</h1> Crypto alert bot v' + version + '. <br/><br/>By: Melroy van den Berg'))
 
 // Test APIs
 app.get(`/test_api/${TEST_API_SECRET_HASH}/crypto`, (req, res) => {
@@ -86,10 +86,10 @@ const comm = new Communicate(bot, cfg.telegram_settings.chat_id)
  * Trigger for cron job
  */
 function onTickCryptoExchange () {
-  // Get market data points
+  // Get Crypto data points for all crypto pairs at once
   fetcher.getData(cfg.tickers.params)
     .then(dataList => {
-      // Loop over all the symbols
+      // Loop over all the crypto symbols pairs
       for (const data of dataList) {
         const crosses = dataProcessor.processCryptoMarket(data)
         comm.sendCryptoMarketUpdate(crosses, data.symbol)
