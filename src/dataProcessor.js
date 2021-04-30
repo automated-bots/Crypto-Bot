@@ -22,30 +22,31 @@ class DataProcessor {
    * Process the crypto market data, using weekly data.
    * It's creating a PPO (%) indicator, then checking on MACD crosses from the histogram (PPO - Signal Line)
    *
-   * @param {Array} sp500Data Crypto data
-   * @returns Result structure
+   * @param {Array} data Market data timeserie values and symbol data
+   * @returns Array of crosses
    */
-  processCryptoMarket (sp500Data) {
-    const result = { crosses: [] }
+  processCryptoMarket (data) {
+    const crosses = []
     const csvData = []
     // Create technical indicator (Percentage Price Oscillator: PPO)
     const ppo = new PPO(this.indicatorsConfig.PPO.short, this.indicatorsConfig.PPO.long, this.indicatorsConfig.PPO.signal)
 
+    const values = data.values
     // Strip down the data series to just what is needed for warming-up fase + data period
     let nrOfDataPoints = this.warmupPeriod + this.dataPeriod
-    let firstIndexUsed = (sp500Data.length - 1) - (this.dataPeriod - 1)
-    if (sp500Data.length < nrOfDataPoints) {
+    let firstIndexUsed = (values.length - 1) - (this.dataPeriod - 1)
+    if (values.length < nrOfDataPoints) {
       console.error('ERROR: Not enough data received from API')
-      nrOfDataPoints = sp500Data.length
+      nrOfDataPoints = values.length
     }
     if (firstIndexUsed < 0) {
       console.error('ERROR: Index of first used data point out-of-range.')
       firstIndexUsed = 0
     }
-    const lastDataPoints = sp500Data.slice(sp500Data.length - nrOfDataPoints, sp500Data.length)
-    const startTimestamp = sp500Data[firstIndexUsed].time
+    const lastDataPoints = values.slice(values.length - nrOfDataPoints, values.length)
+    const startTimestamp = values[firstIndexUsed].time
 
-    // Process PPO indicator using S&P 500 data points
+    // Process PPO indicator using timeserie points
     // We could create a buffer of history of PPO,
     // or just save what we need for now: previous PPO histogram
     let previousPPO = null
@@ -72,7 +73,7 @@ class DataProcessor {
           const bullish = Math.sign(previousPPO.hist) === -1 &&
             (Math.sign(currentPPO.hist) === 1 || Math.sign(currentPPO.hist) === 0)
           if (bullish) {
-            result.crosses.push({
+            crosses.push({
               type: 'bullish',
               close: tick.close,
               high: tick.high,
@@ -87,7 +88,7 @@ class DataProcessor {
           const bearish = (Math.sign(previousPPO.hist) === 0 || Math.sign(previousPPO.hist) === 1) &&
             (Math.sign(currentPPO.hist) === -1)
           if (bearish) {
-            result.crosses.push({
+            crosses.push({
               type: 'bearish',
               close: tick.close,
               high: tick.high,
@@ -107,10 +108,11 @@ class DataProcessor {
 
     // Dump verbose data to CSV file
     if (DEBUG) {
-      const ws = fs.createWriteStream('debug2.csv')
+      const filename = 'debug_' + data.symbol.replace(/\//g, '_')
+      const ws = fs.createWriteStream(filename + '.csv')
       csv.write(csvData, { headers: true }).pipe(ws)
     }
-    return result
+    return crosses
   }
 }
 

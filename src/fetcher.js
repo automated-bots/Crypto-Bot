@@ -57,6 +57,7 @@ class Fetcher {
    * @param {Array} symbolPairs Requested symbol pairs
    * @param {Array} data Data response body
    * @param {String} cacheFile Filename store data to (if cache enabled)
+   * @return Array of objects: {symbol: , values: }
    */
   postProcessingTimeseries (symbolPairs, data, cacheFile) {
     const listSeries = []

@@ -5,9 +5,8 @@ Dockerfile
 CODEOWNERS
 
 /cachedData.json
-/cachedDataWeekly.json
 config.yml
-debug.csv
+debug_*.csv
 *.sh
 *.md
 
