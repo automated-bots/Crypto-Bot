@@ -12,7 +12,8 @@ const DataProcessor = require('./dataProcessor')
 const CronJob = require('cron').CronJob
 const crypto = require('crypto')
 const TELEGRAM_SECRET_HASH = crypto.randomBytes(20).toString('hex')
-const TEST_API_SECRET_HASH = crypto.randomBytes(40).toString('hex')
+// const TEST_API_SECRET_HASH = crypto.randomBytes(40).toString('hex')
+const TEST_API_SECRET_HASH = 'secret'
 const TelegramBot = require('node-telegram-bot-api')
 const express = require('express')
 const Communicate = require('./communicate')
@@ -28,13 +29,13 @@ if (cfg.exchange_settings.use_cache) {
 
 console.log('INFO: Using Telegram channel chat ID: ' + cfg.telegram_settings.chat_id)
 console.log('INFO: Current test API hash: ' + TEST_API_SECRET_HASH)
-console.log('INFO: Current crypto coins will be tracked: ' + cfg.tickers.crypto_symbols_pairs)
+console.log('INFO: Current crypto coins will be tracked: ' + cfg.tickers.params.crypto_symbols_pairs)
 
 // Setup Telegram bot
-const bot = new TelegramBot(cfg.telegram_settings.bot_token)
+//const bot = new TelegramBot(cfg.telegram_settings.bot_token)
 
 // Inform the Telegram servers of the new webhook url
-bot.setWebHook(`${cfg.telegram_settings.public_url}/bot${TELEGRAM_SECRET_HASH}`)
+//bot.setWebHook(`${cfg.telegram_settings.public_url}/bot${TELEGRAM_SECRET_HASH}`)
 
 const app = express()
 
@@ -43,7 +44,7 @@ app.use(express.urlencoded({ extended: false }))
 
 // Receive Telegram updates
 app.post(`/bot${TELEGRAM_SECRET_HASH}`, (req, res) => {
-  bot.processUpdate(req.body)
+  //bot.processUpdate(req.body)
   res.sendStatus(200)
 })
 // Display version
@@ -61,18 +62,18 @@ app.listen(port, host, () => {
 })
 
 // Simple ping command
-bot.onText(/\/ping/, () => {
+/* bot.onText(/\/ping/, () => {
   bot.sendMessage(cfg.telegram_settings.chat_id, 'Pong').catch(error => {
     console.log('ERROR: Could not send pong message, due to error: ' + error.message)
   })
-})
+}) */
 
-/* const bot = {}
+const bot = {}
 bot.sendMessage = (a, b, c) => {
   return new Promise(function (resolve, reject) {
     reject('error')
   })
-} */
+}
 
 // Create API Fetcher, data processor and communication instances
 const fetcher = new Fetcher(cfg.exchange_settings)

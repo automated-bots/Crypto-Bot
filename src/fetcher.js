@@ -18,13 +18,10 @@ class Fetcher {
   /**
    * Get historical information from Alpha Vantage API
    *
-   * @param {Object} exchangeParams Params dictionary object containing: 'symbol', 'interval' and 'outputsize'
+   * @param {Object} exchangeParams Params dictionary object containing: 'crypto_symbols_pairs', 'interval' and 'outputsize'
    */
   async getData (exchangeParams) {
-    let cacheFile = 'cachedData.json'
-    if (exchangeParams.interval === '1week') {
-      cacheFile = 'cachedDataWeekly.json'
-    }
+    const cacheFile = 'cachedData.json'
 
     if (fs.existsSync('./' + cacheFile) &&
       this.exchangeSettings.use_cache) {
@@ -36,19 +33,18 @@ class Fetcher {
       }
     } else {
       const params = {
-        symbol: exchangeParams.symbol,
+        symbol: exchangeParams.crypto_symbols_pairs.join(),
         interval: exchangeParams.interval,
         outputsize: exchangeParams.outputsize,
         order: 'ASC',
         apikey: this.exchangeSettings.api_token
       }
-      // Both data arrays should contain data bout OHLC and datetime
       try {
         const response = await this.api.get('/time_series', { params: params })
-        if (!Object.prototype.hasOwnProperty.call(response.data, 'values')) {
+        if (response.status !== 200) {
           return Promise.reject(new Error('Missing values key in response. HTTP status code: ' + response.status + ' with text : ' + response.statusText + '. Reponse:\n' + JSON.stringify(response.data)))
         }
-        return this.postProcessingTimeseries(response.data.values, cacheFile)
+        return this.postProcessingTimeseries(exchangeParams.crypto_symbols_pairs, response.data, cacheFile)
       } catch (error) {
         console.log(error)
         throw new Error(error)
@@ -57,28 +53,39 @@ class Fetcher {
   }
 
   /**
-   * Helper function for processing index time-series
-   * @param {Array} timeseries Time-series candle data
+   * Helper function for processing crypto time-series
+   * @param {Array} symbolPairs Requested symbol pairs
+   * @param {Array} data Data response body
    * @param {String} cacheFile Filename store data to (if cache enabled)
    */
-  postProcessingTimeseries (timeseries, cacheFile) {
-    if (typeof (timeseries) === 'undefined' || timeseries === null || timeseries.length <= 0) {
-      return Promise.reject(new Error('Still invalid or empty data received from API'))
+  postProcessingTimeseries (symbolPairs, data, cacheFile) {
+    const listSeries = []
+    if (typeof (data) === 'undefined' || data === null) {
+      return Promise.reject(new Error('Still empty data received from API'))
     }
-    const series = timeseries.map(value =>
-      Candle.createIndex(
-        parseFloat(value.open), // Open
-        parseFloat(value.high), // High
-        parseFloat(value.low), // Low
-        parseFloat(value.close), // Close
-        new Date(value.datetime).getTime()) // Timestamp in ms since Epoch
-    )
-    if (series && this.exchangeSettings.use_cache) {
-      fs.writeFile('./' + cacheFile, JSON.stringify(series, null, 2), 'utf-8', (err) => {
+
+    for (const symbol of symbolPairs) {
+      if (!Object.prototype.hasOwnProperty.call(data, symbol)) {
+        return Promise.reject(new Error('Symbol ' + symbol + ' not found in data received from API'))
+      }
+      const timeseries = data[symbol].values
+      const values = timeseries.map(value =>
+        Candle.createIndex(
+          parseFloat(value.open), // Open
+          parseFloat(value.high), // High
+          parseFloat(value.low), // Low
+          parseFloat(value.close), // Close
+          new Date(value.datetime).getTime()) // Timestamp in ms since Epoch
+      )
+      listSeries.push({ symbol: symbol, values: values })
+    }
+
+    if (listSeries.length > 0 && this.exchangeSettings.use_cache) {
+      fs.writeFile('./' + cacheFile, JSON.stringify(listSeries, null, 2), 'utf-8', (err) => {
         if (err) throw err
       })
     }
-    return series
+    return listSeries
   }
 }
 
