@@ -1,14 +1,8 @@
 # Crypto Alert Bot
 
-`crypto-bot` is an open-source bot that track the top 5 most popular crypto tokens/coins. And give you a notification when the trend is changing (up/down trend).
+`crypto-bot` is an open-source bot that track the top 4 most popular crypto tokens/coins (BTC, ETH, BNB and ADA). The bot gives you a notification when the trend is changing (up/down trend).
 
-This bot will inform you via Telegram, whenever there is an up- or downtrend in one of the top 5 crypto coins. Technical analysis is applied to determine the up- or downtrends.
-
-## Requirements
-
-This bot is written in JavaScript and run on NodeJS.
-
-* [NodeJS 14 or higher](https://nodejs.org/en/download/)
+This bot will inform you via the [Telegram channel](https://t.me/crypto_exchange_updates), whenever there is an up- or downtrend in one of the 4 crypto coins. Technical analysis is applied to determine the up- or downtrends.
 
 ## Usage
 
@@ -17,6 +11,12 @@ You can join the public [Crypto Exchange Alert Telegram channel](https://t.me/cr
 *Or* since this project is open-source, you can setup your own `crypto-bot` as well as your own [Telegram Bot](https://core.telegram.org/bots). See below.
 
 ## Run it yourself
+
+### Requirements
+
+This bot is written in JavaScript and run on NodeJS.
+
+* [NodeJS 14 or higher](https://nodejs.org/en/download/)
 
 ### Docker
 
@@ -70,4 +70,3 @@ There are also 2 environment variables available to set:
 ## License
 
 [MIT License](LICENSE)
-
