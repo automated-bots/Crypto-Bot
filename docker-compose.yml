@@ -1,8 +1,8 @@
 version: "3"
 services:
-  crypto_bot:
+  crypto-bot:
     image: danger89/crypto-bot:latest
-    container_name: crypto_bot
+    container_name: crypto-bot
     restart: always
     volumes:
       - /home/username/folder/to/config.yml:/app/config.yml
