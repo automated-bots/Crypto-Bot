@@ -4,6 +4,7 @@ node_modules
 Dockerfile
 CODEOWNERS
 
+/tmp-*-data.json
 /cachedData.json
 config.yml
 debug_*.csv

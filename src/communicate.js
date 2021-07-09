@@ -1,4 +1,5 @@
 const Util = require('./util')
+const fs = require('fs')
 
 class Communicate {
   /**
@@ -8,11 +9,9 @@ class Communicate {
   constructor (bot, botChatID) {
     this.bot = bot
     this.botChatID = botChatID
-    // Don't spam the channel, save the last MACD cross send-out
-    this.prevLastCrossTime = 0
     this.sendMessageOptions = { parse_mode: 'markdown', disable_web_page_preview: true }
     // Notify channel about Bot booting-up (commented-out for now)
-    this.sendTelegramMessage('Starting-up Bot... 🤓')
+    this.sendTelegramMessage('(Re)starting-up Bot... 🤓')
   }
 
   /**
@@ -24,13 +23,24 @@ class Communicate {
    */
   sendCryptoMarketUpdate (crosses, symbolPair) {
     let messageSend = false
+    const tempFilename = './tmp-' + symbolPair.replace(/\//g, '_') + '-data.json'
+
     for (const cross of crosses) {
-      // Only send messages that are newer that the previous send onces (don't spam)
+      let sendMessage = false
       const currentTime = cross.time.getTime()
-      if (currentTime > this.prevLastCrossTime) {
+
+      if (fs.existsSync(tempFilename)) {
+        const data = this.readContent(tempFilename)
+        sendMessage = (currentTime > data.time)
+      } else {
+        sendMessage = true // Always send a message the first time, if file does not yet exists.
+      }
+
+      // Only send messages that are newer that the previous send onces
+      if (sendMessage) {
         let message = '❗*Crypto Alert*❗\n ' + symbolPair + ' changed in market trend: '
         const dateString = Util.dateToString(cross.time, true)
-        const symbolURI = symbolPair.replace(/\//g, '_') + 'T' // USDT
+        const symbolURI = symbolPair.replace(/\//g, '_B') // BUSD
         const histogram = cross.hist.toFixed(4)
         const prevHistogram = cross.prevHist.toFixed(4)
         const high = cross.high.toFixed(1)
@@ -39,22 +49,23 @@ class Communicate {
         switch (cross.type) {
           case 'bearish':
             message += 'towards a bearish trend 🧸. Don\'t forget to: Buy the dip.'
-            message += `\n\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high}. Low: ${low}. Close: ${close}. MACD cross date: ${dateString}.`
-            message += '\n\n[Open ' + symbolPair + ' Chart](https://www.binance.com/en/trade/' + symbolURI + '?layout=pro)'
             break
           case 'bullish':
-            message += 'towards a bullish trend 🚀. Hodl!'
-            message += `\n\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high}. Low: ${low}. Close: ${close}. MACD cross date: ${dateString}.`
-            message += '\n\n[Open ' + symbolPair + ' Chart](https://www.binance.com/en/trade/' + symbolURI + '?layout=pro)'
+            message += 'towards a bullish trend 🚀. To the moon! Hodl.'
             break
         }
+        message += `\n\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high}. Low: ${low}. Close: ${close}. MACD cross date: ${dateString}.`
+        message += '\n\n[Open ' + symbolPair + ' Chart](https://www.binance.com/en/trade/' + symbolURI + '?layout=pro)'
         this.sendTelegramMessage(message)
-        this.prevLastCrossTime = currentTime
-        messageSend = true
+        messageSend = true // Only used for debug console message
+        // Write data to disk
+        this.writeContent(tempFilename, {
+          time: currentTime
+        })
       }
     }
     if (messageSend === false) {
-      console.log('DEBUG: No crosses detected for ' + symbolPair + '. Don\'t send a message update.')
+      console.log('DEBUG: No MACD crosses detected for ' + symbolPair + '. Do not send a message update.')
     }
   }
 
@@ -67,6 +78,36 @@ class Communicate {
     this.bot.sendMessage(this.botChatID, message, this.sendMessageOptions).catch(error => {
       console.log('ERROR: Could not send Telegram message: "' + message + '", due to error: ' + error.message)
     })
+  }
+
+  /**
+   * Read content from file
+   * @param {String} fileName file name
+   * @returns content
+   */
+  readContent (fileName) {
+    let data = {}
+    try {
+      const raw = fs.readFileSync(fileName)
+      data = JSON.parse(raw)
+    } catch (err) {
+      console.error(err)
+    }
+    return data
+  }
+
+  /**
+   * Write content to file
+   * @param {String} fileName file name
+   * @param {Object} content data
+   */
+  writeContent (fileName, content) {
+    const data = JSON.stringify(content)
+    try {
+      fs.writeFileSync(fileName, data)
+    } catch (err) {
+      console.error(err)
+    }
   }
 }
 

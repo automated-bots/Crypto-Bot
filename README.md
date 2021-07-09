@@ -1,6 +1,6 @@
 # Crypto Alert Bot
 
-`crypto-bot` is an open-source bot that track the top 4 most popular crypto tokens/coins (BTC, ETH, BNB and ADA). The bot gives you a notification when the trend is changing (up/down trend).
+`crypto-bot` is an open-source bot that track some popular crypto tokens/coins (BTC, ETH, BNB, ADA and LINK). The bot gives you a notification when the trend is changing (up/down trend).
 
 This bot will inform you via the [Telegram channel](https://t.me/crypto_exchange_updates), whenever there is an up- or downtrend in one of the 4 crypto coins. Technical analysis is applied to determine the up- or downtrends.
 

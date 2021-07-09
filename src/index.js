@@ -67,10 +67,12 @@ bot.onText(/\/ping/, () => {
   })
 })
 
-/* const bot = {}
+/*
+// For testing only
+const bot = {}
 bot.sendMessage = (a, b, c) => {
   return new Promise(function (resolve, reject) {
-    reject(new Error('error'))
+    reject(new Error('This is just a drill'))
   })
 } */
 

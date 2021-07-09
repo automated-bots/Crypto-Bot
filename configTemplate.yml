@@ -9,11 +9,11 @@ telegram_settings:
   
 tickers:
   params:
-    crypto_symbols_pairs: [ "BTC/USD", "ETH/USD", "BNB/USD", "ADA/USD" ]
+    crypto_symbols_pairs: [ "BTC/USD", "ETH/USD", "BNB/USD", "ADA/USD", "LINK/USD" ]
     exchange: "Binance" # Default timezone for Binance data is UTC (Coordinated Universal Time)
     interval: "1week"
     outputsize: 100
-  cron_time: "0 0 18 * * *" # Notation: Second-Minute-Hour-Day-Month-WeekDay. So, every day at 18:00
+  cron_time: "0 0 11,16 * * *" # Notation: Second-Minute-Hour-Day-Month-WeekDay. So, every day at 11:00 UTC and 16:00 UTC
   # Extra settings for crypto checks
   indicators:
     PPO:
