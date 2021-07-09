@@ -65,7 +65,7 @@ class Communicate {
       }
     }
     if (messageSend === false) {
-      console.log('DEBUG: No MACD crosses detected for ' + symbolPair + '. Do not send a message update.')
+      console.log('DEBUG: No new MACD crosses detected for ' + symbolPair + '. Do not send a message update.')
     }
   }
 
