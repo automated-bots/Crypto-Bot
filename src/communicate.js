@@ -23,7 +23,7 @@ class Communicate {
    */
   sendCryptoMarketUpdate (crosses, symbolPair) {
     let messageSend = false
-    const tempFilename = './tmp-' + symbolPair.replace(/\//g, '_') + '-data.json'
+    const tempFilename = './tmp/tmp-' + symbolPair.replace(/\//g, '_') + '-data.json'
 
     for (const cross of crosses) {
       let sendMessage = false

@@ -1,6 +1,6 @@
 # Ignore cache, config and debug files
 /cachedData.json
-/tmp-*-data.json
+/tmp/tmp-*-data.json
 config.yml
 debug_*.csv
 
