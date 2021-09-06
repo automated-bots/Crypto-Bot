@@ -20,8 +20,9 @@ class Communicate {
    *
    * @param {Array} crosses Crosses in MACD
    * @param {String} symbolPair Crypto market symbol pair
+   * @param {String} name Full crypto name
    */
-  sendCryptoMarketUpdate (crosses, symbolPair) {
+  sendCryptoMarketUpdate (crosses, symbolPair, name) {
     let messageSend = false
     const tempFilename = './tmp/tmp-' + symbolPair.replace(/\//g, '_') + '-data.json'
 
@@ -38,9 +39,15 @@ class Communicate {
 
       // Only send messages that are newer that the previous send onces
       if (sendMessage) {
-        let message = '❗*Crypto Alert*❗\n ' + symbolPair + ' changed in market trend: '
+        // Only for DOT change the symbolPair to another symbol pair, because TwelveData is strange
+        if (symbolPair.startsWith('pDOTn')) {
+          symbolPair = 'DOT/USD'
+        }
+        let message = '❗*Crypto Alert*❗\n ' + name + ' (' + symbolPair + ') changed in market trend: '
         const dateString = Util.dateToString(cross.time, true)
-        const symbolURI = symbolPair.replace(/\//g, '_B') // BUSD
+        const symbolURIBinance = symbolPair.replace(/\//g, '_B') // BUSD with underscore for Binance.com
+        const symbolPairBinance = symbolPair.replace(/\//g, '/B') // BUSD (only ussed in message)
+        const symbolURITradingView = symbolPair.replace(/\//g, '') // USD, only remove the slash
         const histogram = cross.hist.toFixed(4)
         const prevHistogram = cross.prevHist.toFixed(4)
         const high = cross.high.toFixed(1)
@@ -55,7 +62,9 @@ class Communicate {
             break
         }
         message += `\n\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high}. Low: ${low}. Close: ${close}. MACD cross date: ${dateString}.`
-        message += '\n\n[Open ' + symbolPair + ' Chart](https://www.binance.com/en/trade/' + symbolURI + '?layout=pro)'
+        message += '\n\n[Open ' + symbolPairBinance + ' chart (Binance)](https://www.binance.com/en/trade/' + symbolURIBinance + '?layout=pro) || '
+        message += '[Open ' + symbolPair + 'chart (TradingView)](https://www.tradingview.com/chart?symbol=BINANCE:' + symbolURITradingView + ')'
+
         this.sendTelegramMessage(message)
         messageSend = true // Only used for debug console message
         // Write data to disk

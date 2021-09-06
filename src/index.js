@@ -94,7 +94,7 @@ function onTickCryptoExchange () {
       // Loop over all the crypto symbols pairs
       for (const data of dataList) {
         const crosses = dataProcessor.processCryptoMarket(data)
-        comm.sendCryptoMarketUpdate(crosses, data.symbol)
+        comm.sendCryptoMarketUpdate(crosses, data.symbol, data.name)
       }
     })
     .catch(error => {

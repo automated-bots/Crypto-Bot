@@ -57,7 +57,7 @@ class Fetcher {
    * @param {Array} symbolPairs Requested symbol pairs
    * @param {Array} data Data response body
    * @param {String} cacheFile Filename store data to (if cache enabled)
-   * @return Array of objects: {symbol: , values: }
+   * @return Array of objects: {symbol: '', name: '', values: [] }
    */
   postProcessingTimeseries (symbolPairs, data, cacheFile) {
     const listSeries = []
@@ -69,6 +69,7 @@ class Fetcher {
       if (!Object.prototype.hasOwnProperty.call(data, symbol)) {
         return Promise.reject(new Error('Symbol ' + symbol + ' not found in data received from API'))
       }
+      const baseName = (data[symbol].meta.currency_base).trim()
       const timeseries = data[symbol].values
       const values = timeseries.map(value =>
         Candle.createIndex(
@@ -78,7 +79,7 @@ class Fetcher {
           parseFloat(value.close), // Close
           new Date(value.datetime).getTime()) // Timestamp in ms since Epoch
       )
-      listSeries.push({ symbol: symbol, values: values })
+      listSeries.push({ symbol: symbol, name: baseName, values: values })
     }
 
     if (listSeries.length > 0 && this.exchangeSettings.use_cache) {
