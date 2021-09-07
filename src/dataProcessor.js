@@ -36,11 +36,11 @@ class DataProcessor {
     let nrOfDataPoints = this.warmupPeriod + this.dataPeriod
     let firstIndexUsed = (values.length - 1) - (this.dataPeriod - 1)
     if (values.length < nrOfDataPoints) {
-      console.error('ERROR: Not enough data received from API')
+      console.error('ERROR: Not enough data received from API for symbol: ' + data.symbol + '. Expected: ' + nrOfDataPoints + ' (' + this.warmupPeriod + '+' + this.dataPeriod + ') - Actual: ' + values.length)
       nrOfDataPoints = values.length
     }
     if (firstIndexUsed < 0) {
-      console.error('ERROR: Index of first used data point out-of-range.')
+      console.error('ERROR: Index of first used data point out-of-range for symbol: ' + data.symbol + '.')
       firstIndexUsed = 0
     }
     const lastDataPoints = values.slice(values.length - nrOfDataPoints, values.length)
