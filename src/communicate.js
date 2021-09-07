@@ -63,7 +63,7 @@ class Communicate {
         }
         message += `\n\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high}. Low: ${low}. Close: ${close}. MACD cross date: ${dateString}.`
         message += '\n\n[Open ' + symbolPairBinance + ' chart (Binance)](https://www.binance.com/en/trade/' + symbolURIBinance + '?layout=pro) || '
-        message += '[Open ' + symbolPair + 'chart (TradingView)](https://www.tradingview.com/chart?symbol=BINANCE:' + symbolURITradingView + ')'
+        message += '[Open ' + symbolPair + ' chart (TradingView)](https://www.tradingview.com/chart?symbol=BINANCE:' + symbolURITradingView + ')'
 
         this.sendTelegramMessage(message)
         messageSend = true // Only used for debug console message
