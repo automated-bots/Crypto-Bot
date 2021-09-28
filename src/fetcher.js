@@ -67,7 +67,7 @@ class Fetcher {
 
     for (const symbol of symbolPairs) {
       if (!Object.prototype.hasOwnProperty.call(data, symbol)) {
-        return Promise.reject(new Error('Symbol ' + symbol + ' not found in data received from API'))
+        return Promise.reject(new Error('Symbol ' + symbol + ' not found in data received from API. Data dump:\n' + JSON.stringify(data, null, 2)))
       }
       const baseName = (data[symbol].meta.currency_base).trim()
       const timeseries = data[symbol].values
