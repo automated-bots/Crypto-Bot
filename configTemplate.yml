@@ -13,7 +13,7 @@ tickers:
     exchange: "Binance" # Default timezone for Binance data is UTC (Coordinated Universal Time)
     interval: "1week"
     outputsize: 100
-  cron_time: "0 10 * * * *" # Notation: Second-Minute-Hour-Day-Month-WeekDay. So, every hour at hh:10 hour, since crypto can be volatile.
+  cron_time: "0 10 * * * *" # Notation: Second-Minute-Hour-Day-Month-WeekDay. So, every hour at hh:10 hour, since crypto can be volatile. Keep the cron time above each 10 min. to avoid API rate limit issues.
   # Extra settings for crypto checks
   indicators:
     PPO:

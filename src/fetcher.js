@@ -18,13 +18,17 @@ class Fetcher {
   /**
    * Get historical information from Alpha Vantage API
    *
-   * @param {Object} exchangeParams Params dictionary object containing: 'crypto_symbols_pairs', 'interval' and 'outputsize'
+   * @param {Array} symbolPairs List of crypto symbols (max. 8 at a time, to avoid the rate limit)
+   * @param {String} interval Interval period (eg. "1week")
+   " @param {Number} outputSize Number of data points
    */
-  async getData (exchangeParams) {
+  async getData (symbolPairs, interval, outputSize) {
     const cacheFile = 'cachedData.json'
 
     if (fs.existsSync('./' + cacheFile) &&
       this.exchangeSettings.use_cache) {
+      // Use the local cached fille, rather than the API call.
+      // However, keep it mind, it doesn't really care about the actual symbolPairs requested
       const data = fs.readFileSync('./' + cacheFile, 'utf8')
       if (data) {
         return Promise.resolve(JSON.parse(data))
@@ -33,9 +37,9 @@ class Fetcher {
       }
     } else {
       const params = {
-        symbol: exchangeParams.crypto_symbols_pairs.join(),
-        interval: exchangeParams.interval,
-        outputsize: exchangeParams.outputsize,
+        symbol: symbolPairs.join(),
+        interval: interval,
+        outputsize: outputSize,
         order: 'ASC',
         apikey: this.exchangeSettings.api_token
       }
@@ -44,7 +48,7 @@ class Fetcher {
         if (response.status !== 200) {
           return Promise.reject(new Error('Missing values key in response. HTTP status code: ' + response.status + ' with text : ' + response.statusText + '. Reponse:\n' + JSON.stringify(response.data)))
         }
-        return this.postProcessingTimeseries(exchangeParams.crypto_symbols_pairs, response.data, cacheFile)
+        return this.postProcessingTimeseries(symbolPairs, response.data, cacheFile)
       } catch (error) {
         console.log(error)
         throw new Error(error)
@@ -54,7 +58,7 @@ class Fetcher {
 
   /**
    * Helper function for processing crypto time-series
-   * @param {Array} symbolPairs Requested symbol pairs
+   * @param {Array} symbolPairs Crypto symbol pairs (eg. [ 'BTC/USD, ..])
    * @param {Array} data Data response body
    * @param {String} cacheFile Filename store data to (if cache enabled)
    * @return Array of objects: {symbol: '', name: '', values: [] }

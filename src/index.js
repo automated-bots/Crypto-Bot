@@ -67,9 +67,8 @@ bot.onText(/\/ping/, () => {
   })
 })
 
-/*
 // For testing only
-const bot = {}
+/* const bot = {}
 bot.sendMessage = (a, b, c) => {
   return new Promise(function (resolve, reject) {
     reject(new Error('This is just a drill'))
@@ -85,11 +84,12 @@ const dataProcessor = new DataProcessor(
 const comm = new Communicate(bot, cfg.telegram_settings.chat_id)
 
 /**
- * Trigger for cron job
+ * Due to the 8 API/min rate limit, we need to call the API with time-outs
+ * @param {Array} symbolPairs Crypto symbol pairs
  */
-function onTickCryptoExchange () {
+function fetchData (symbolPairs) {
   // Get Crypto data points for all crypto pairs at once
-  fetcher.getData(cfg.tickers.params)
+  fetcher.getData(symbolPairs, cfg.tickers.params.interval, cfg.tickers.params.outputsize)
     .then(dataList => {
       // Loop over all the crypto symbols pairs
       for (const data of dataList) {
@@ -101,6 +101,37 @@ function onTickCryptoExchange () {
       console.error('Error: Something went wrong during getting or processing the stock market data. With message: ' + error.message + '. Stack:\n')
       console.log(error.stack)
     })
+}
+
+/**
+ * Trigger for cron job,
+ * with a maximum of 8 symbol pairs/min. rate limition due to our free API account.
+ */
+function onTickCryptoExchange () {
+  const symbols = cfg.tickers.params.crypto_symbols_pairs
+  // We will split the crypto symbol pairs in chunks of 8,
+  // so we do not hit the API req limit of 8 API calls/min.
+  const symbolsChunks = sliceIntoChunks(symbols, 8)
+
+  let timeout = 0
+  for (const symbolPairs of symbolsChunks) {
+    // Immediately Invoked Function Expression workaround so we can use the setTimeout inside a for loop in JS
+    (function (symbolPairs, timeout) {
+      setTimeout(fetchData, timeout, symbolPairs)
+    })(symbolPairs, timeout)
+
+    // Next call(s) will be deleyed by little over 1 min, so we don't hit the API call rate limit
+    timeout += 62000 // in milliseconds
+  }
+}
+
+function sliceIntoChunks (arr, chunkSize) {
+  const res = []
+  for (let i = 0; i < arr.length; i += chunkSize) {
+    const chunk = arr.slice(i, i + chunkSize)
+    res.push(chunk)
+  }
+  return res
 }
 
 // Cron job for onTickCryptoExchange()
