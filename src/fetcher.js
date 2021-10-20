@@ -43,16 +43,11 @@ class Fetcher {
         order: 'ASC',
         apikey: this.exchangeSettings.api_token
       }
-      try {
-        const response = await this.api.get('/time_series', { params: params })
-        if (response.status !== 200) {
-          return Promise.reject(new Error('Missing values key in response. HTTP status code: ' + response.status + ' with text : ' + response.statusText + '. Reponse:\n' + JSON.stringify(response.data)))
-        }
-        return this.postProcessingTimeseries(symbolPairs, response.data, cacheFile)
-      } catch (error) {
-        console.log(error)
-        throw new Error(error)
+      const response = await this.api.get('/time_series', { params: params })
+      if (response.status !== 200) {
+        return Promise.reject(new Error('Missing values key in response. HTTP status code: ' + response.status + ' with text : ' + response.statusText + '. Reponse:\n' + JSON.stringify(response.data)))
       }
+      return this.postProcessingTimeseries(symbolPairs, response.data, cacheFile)
     }
   }
 
@@ -70,11 +65,17 @@ class Fetcher {
     }
 
     for (const symbol of symbolPairs) {
-      if (!Object.prototype.hasOwnProperty.call(data, symbol)) {
-        return Promise.reject(new Error('Symbol ' + symbol + ' not found in data received from API. Data dump:\n' + JSON.stringify(data, null, 2)))
+      let baseName, timeseries
+      if (Object.prototype.hasOwnProperty.call(data, 'meta')) { // If time-series API is called with a single symbol parameter
+        baseName = (data.meta.currency_base).trim()
+        timeseries = data.values
+      } else if (Object.prototype.hasOwnProperty.call(data, symbol)) { // If time-series API is called with multiple symbols
+        baseName = (data[symbol].meta.currency_base).trim()
+        timeseries = data[symbol].values
+      } else { // Not good
+        return Promise.reject(new Error('Symbol ' + symbol + ' could not be found in data received from API. Data dump:\n' + JSON.stringify(data, null, 2)))
       }
-      const baseName = (data[symbol].meta.currency_base).trim()
-      const timeseries = data[symbol].values
+      // Constructing our time series objects
       const values = timeseries.map(value =>
         Candle.createIndex(
           parseFloat(value.open), // Open

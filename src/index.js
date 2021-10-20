@@ -99,7 +99,7 @@ function fetchData (symbolPairs) {
     })
     .catch(error => {
       console.error('Error: Something went wrong during getting or processing the stock market data. With message: ' + error.message + '. Stack:\n')
-      console.log(error.stack)
+      console.error(error.stack)
     })
 }
 
