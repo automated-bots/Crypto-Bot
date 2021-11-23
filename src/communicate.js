@@ -45,8 +45,6 @@ class Communicate {
         }
         let message = '❗*Crypto Alert*❗\n ' + name + ' (' + symbolPair + ') changed in market trend: '
         const dateString = Util.dateToString(cross.time, true)
-        const symbolURIBinance = symbolPair.replace(/\//g, '_B') // BUSD with underscore for Binance.com
-        const symbolPairBinance = symbolPair.replace(/\//g, '/B') // BUSD (only ussed in message)
         const symbolURITradingView = symbolPair.replace(/\//g, '') // USD, only remove the slash
         const histogram = cross.hist.toFixed(4)
         const prevHistogram = cross.prevHist.toFixed(4)
@@ -62,8 +60,7 @@ class Communicate {
             break
         }
         message += `\n\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high}. Low: ${low}. Close: ${close}. MACD cross date: ${dateString}.`
-        message += '\n\n[Open ' + symbolPairBinance + ' chart (Binance)](https://www.binance.com/en/trade/' + symbolURIBinance + '?layout=pro) || '
-        message += '[Open ' + symbolPair + ' chart (TradingView)](https://www.tradingview.com/chart?symbol=BINANCE:' + symbolURITradingView + ')'
+        message += '\n\n[Open ' + symbolPair + ' chart (TradingView)](https://www.tradingview.com/chart?symbol=FTX:' + symbolURITradingView + ')'
 
         this.sendTelegramMessage(message)
         messageSend = true // Only used for debug console message
