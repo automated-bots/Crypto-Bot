@@ -36,8 +36,15 @@ const bot = new TelegramBot(cfg.telegram_settings.bot_token)
 // Inform the Telegram servers of the new webhook url
 bot.setWebHook(`${cfg.telegram_settings.public_url}/bot${TELEGRAM_SECRET_HASH}`)
 
-const app = express()
+// Create API Fetcher, data processor and communication instances
+const fetcher = new Fetcher(cfg.exchange_settings)
+const dataProcessor = new DataProcessor(
+  cfg.tickers.warmup_period,
+  cfg.tickers.data_period,
+  cfg.tickers.indicators)
+const comm = new Communicate(bot, cfg.telegram_settings.chat_id)
 
+const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
@@ -55,9 +62,11 @@ app.get(`/test_api/${TEST_API_SECRET_HASH}/crypto`, (req, res) => {
   res.send('OK')
 })
 
-// Start Express Server
-app.listen(port, host, () => {
-  console.log(`INFO: Crypto Exchange Bot v${version} is now running on ${host} on port ${port}.`)
+app.get('/health', (req, res) => {
+  // Check if there are any issues with the communication layer
+  const isError = comm.isError()
+  const statusCode = (isError) ? 500 : 200
+  res.status(statusCode).json({ health_ok: !isError })
 })
 
 // Simple ping command
@@ -75,13 +84,10 @@ bot.sendMessage = (a, b, c) => {
   })
 } */
 
-// Create API Fetcher, data processor and communication instances
-const fetcher = new Fetcher(cfg.exchange_settings)
-const dataProcessor = new DataProcessor(
-  cfg.tickers.warmup_period,
-  cfg.tickers.data_period,
-  cfg.tickers.indicators)
-const comm = new Communicate(bot, cfg.telegram_settings.chat_id)
+// Start Express Server
+app.listen(port, host, () => {
+  console.log(`INFO: Crypto Exchange Bot v${version} is now running on ${host} on port ${port}.`)
+})
 
 /**
  * Due to the 8 API/min rate limit, we need to call the API with time-outs

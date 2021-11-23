@@ -9,6 +9,7 @@ class Communicate {
   constructor (bot, botChatID) {
     this.bot = bot
     this.botChatID = botChatID
+    this.fatalError = false
     this.sendMessageOptions = { parse_mode: 'markdown', disable_web_page_preview: true }
     // Notify channel about Bot booting-up (commented-out for now)
     this.sendTelegramMessage('(Re)starting-up Bot... 🤓')
@@ -83,7 +84,16 @@ class Communicate {
 
     this.bot.sendMessage(this.botChatID, message, this.sendMessageOptions).catch(error => {
       console.log('ERROR: Could not send Telegram message: "' + message + '", due to error: ' + error.message)
+      this.fatalError = true
     })
+  }
+
+  /**
+   * Retrieve fatal error state
+   * @returns true if an fatal error ever occurred. Otherwise false.
+   */
+  isError () {
+    return this.fatalError
   }
 
   /**
