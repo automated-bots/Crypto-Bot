@@ -4,6 +4,7 @@ process.env.NTBA_FIX_350 = 1
 // Constants
 const port = process.env.PORT || 3010
 const host = process.env.HOST || '0.0.0.0'
+const isFake = process.env.NODE_ENV === 'fake'
 
 const fs = require('fs')
 const YAML = require('yaml')
@@ -31,7 +32,18 @@ console.log('INFO: Current test API hash: ' + TEST_API_SECRET_HASH)
 console.log('INFO: Current crypto coins will be tracked: ' + cfg.tickers.params.crypto_symbols_pairs)
 
 // Setup Telegram bot
-const bot = new TelegramBot(cfg.telegram_settings.bot_token)
+const bot = (isFake) ? {} : new TelegramBot(cfg.telegram_settings.bot_token)
+// For testing purpose only
+if (isFake) {
+  bot.setWebHook = (url, options = {}, fileOptions = {}) => { }
+  bot.onText = (regexp, callback) => {}
+  bot.sendMessage = (chatId, text, form = {}) => {
+    return new Promise(function (resolve, reject) {
+      console.log('Send Messaged (just a drill)! Chat ID: ' + chatId + ' with message: ' + text)
+      resolve()
+    })
+  }
+}
 
 // Inform the Telegram servers of the new webhook url
 bot.setWebHook(`${cfg.telegram_settings.public_url}/bot${TELEGRAM_SECRET_HASH}`)
@@ -75,14 +87,6 @@ bot.onText(/\/ping/, () => {
     console.log('ERROR: Could not send pong message, due to error: ' + error.message)
   })
 })
-
-// For testing only
-/* const bot = {}
-bot.sendMessage = (a, b, c) => {
-  return new Promise(function (resolve, reject) {
-    reject(new Error('This is just a drill'))
-  })
-} */
 
 // Start Express Server
 app.listen(port, host, () => {

@@ -1,10 +1,11 @@
 {
   "name": "crypto-bot",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Crypto tokens bot notifier",
   "main": "src/index.js",
   "scripts": {
     "start": "node .",
+    "start-fake": "NODE_ENV=fake node .",
     "memory": "node --expose-gc --inspect .",
     "debug": "node inspect . --debug",
     "lint": "eslint src/ --ext .js",
@@ -30,19 +31,19 @@
   "author": "Melroy van den Berg <melroy@melroy.org>",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.21.4",
+    "axios": "^0.24.0",
     "cron": "^1.8.2",
     "express": "^4.17.1",
     "fast-csv": "^4.3.6",
-    "node-telegram-bot-api": "^0.52.0",
+    "node-telegram-bot-api": "^0.54.0",
     "yaml": "^1.10.2"
   },
   "devDependencies": {
-    "eslint": "^7.32.0",
+    "eslint": "^8.3.0",
     "eslint-config-standard": "^16.0.3",
-    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^5.1.0",
+    "eslint-plugin-promise": "^5.1.1",
     "eslint-plugin-standard": "^4.1.0"
   }
 }
