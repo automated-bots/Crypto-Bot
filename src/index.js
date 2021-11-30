@@ -145,7 +145,6 @@ function sliceIntoChunks (arr, chunkSize) {
 }
 
 // Cron job for onTickCryptoExchange()
-// Note: set utcOffset to zero (UTC)
-const job = new CronJob(cfg.tickers.cron_time, onTickCryptoExchange, null, false, null, null, null, 0)
+const job = new CronJob(cfg.tickers.cron_time, onTickCryptoExchange, null, false, cfg.tickers.cron_timezone)
 job.start()
 console.log('INFO: Cron triggers scheduled for (upcoming 10 shown):\n - ' + job.nextDates(10).join('\n - '))
