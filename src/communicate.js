@@ -25,16 +25,18 @@ class Communicate {
    */
   sendCryptoMarketUpdate (crosses, symbolPair, name) {
     let messageSend = false
-    const tempFilename = './tmp/tmp-' + symbolPair.replace(/\//g, '_') + '-data.json'
+    const tempFilename = 'tmp-' + symbolPair.replace(/\//g, '_') + '-data.json'
+    const tempFilePath = `./tmp/${tempFilename}`
 
     for (const cross of crosses) {
       let sendMessage = false
       const currentTime = cross.time.getTime()
 
-      if (fs.existsSync(tempFilename)) {
-        const data = this.readContent(tempFilename)
+      if (fs.existsSync(tempFilePath)) {
+        const data = this.readContent(tempFilePath)
         sendMessage = (currentTime > data.time)
       } else {
+        console.warn('WARN: Missing crypto temp file on disk (' + tempFilename + '). First run/trigger?')
         sendMessage = true // Always send a message the first time, if file does not yet exists.
       }
 
@@ -66,7 +68,7 @@ class Communicate {
         this.sendTelegramMessage(message)
         messageSend = true // Only used for debug console message
         // Write data to disk
-        this.writeContent(tempFilename, {
+        this.writeContent(tempFilePath, {
           time: currentTime
         })
       }
@@ -83,7 +85,7 @@ class Communicate {
     console.log('INFO: Try sending the following message to Telegram channel: ' + message)
 
     this.bot.sendMessage(this.botChatID, message, this.sendMessageOptions).catch(error => {
-      console.log('ERROR: Could not send Telegram message: "' + message + '", due to error: ' + error.message)
+      console.error('ERROR: Could not send Telegram message: "' + message + '", due to error: ' + error.message)
       this.fatalError = true
     })
   }
@@ -102,14 +104,12 @@ class Communicate {
    * @returns content
    */
   readContent (fileName) {
-    let data = {}
     try {
       const raw = fs.readFileSync(fileName)
-      data = JSON.parse(raw)
+      return JSON.parse(raw)
     } catch (err) {
       console.error(err)
     }
-    return data
   }
 
   /**
