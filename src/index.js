@@ -17,6 +17,7 @@ const TEST_API_SECRET_HASH = crypto.randomBytes(40).toString('hex')
 const TelegramBot = require('node-telegram-bot-api')
 const express = require('express')
 const Communicate = require('./communicate')
+const Util = require('./util')
 const { version } = require('../package.json')
 
 const cfg = YAML.parse(fs.readFileSync('config.yml', 'utf8').toString())
@@ -24,12 +25,12 @@ if (!cfg) {
   throw new Error('Please create a config.yml file.')
 }
 if (cfg.exchange_settings.use_cache) {
-  console.log('WARN: Cached market data files will be used (if available).')
+  console.warn(Util.getCurrentDateTime() + ' - WARN: Cached market data files will be used (if available).')
 }
 
-console.log('INFO: Using Telegram channel chat ID: ' + cfg.telegram_settings.chat_id)
-console.log('INFO: Current test API hash: ' + TEST_API_SECRET_HASH)
-console.log('INFO: Current crypto coins will be tracked: ' + cfg.tickers.params.crypto_symbols_pairs)
+console.info(Util.getCurrentDateTime() + ' - Using Telegram channel chat ID: ' + cfg.telegram_settings.chat_id)
+console.info(Util.getCurrentDateTime() + ' - Current test API hash: ' + TEST_API_SECRET_HASH)
+console.info(Util.getCurrentDateTime() + ' - Current crypto coins will be tracked: ' + cfg.tickers.params.crypto_symbols_pairs)
 
 // Setup Telegram bot
 const bot = (isFake) ? {} : new TelegramBot(cfg.telegram_settings.bot_token)
@@ -39,7 +40,7 @@ if (isFake) {
   bot.onText = (regexp, callback) => {}
   bot.sendMessage = (chatId, text, form = {}) => {
     return new Promise(function (resolve, reject) {
-      console.log('Send Messaged (just a drill)! Chat ID: ' + chatId + ' with message: ' + text)
+      console.log(Util.getCurrentDateTime() + ' - Send messaged (just a drill)! Chat ID: ' + chatId + ' with message: ' + text)
       resolve()
     })
   }
@@ -84,13 +85,13 @@ app.get('/health', (req, res) => {
 // Simple ping command
 bot.onText(/\/ping/, () => {
   bot.sendMessage(cfg.telegram_settings.chat_id, 'Pong').catch(error => {
-    console.log('ERROR: Could not send pong message, due to error: ' + error.message)
+    console.error(Util.getCurrentDateTime() + ' - ERROR: Could not send pong message, due to error: ' + error.message)
   })
 })
 
 // Start Express Server
 app.listen(port, host, () => {
-  console.log(`INFO: Crypto Exchange Bot v${version} is now running on ${host} on port ${port}.`)
+  console.info(`${Util.getCurrentDateTime()} - Crypto Exchange Bot v${version} is now running on ${host} on port ${port}.`)
 })
 
 /**
@@ -108,7 +109,7 @@ function fetchData (symbolPairs) {
       }
     })
     .catch(error => {
-      console.error('Error: Something went wrong during getting or processing the stock market data. With message: ' + error.message + '. Stack:\n')
+      console.error(Util.getCurrentDateTime() + ' - Error: Something went wrong during getting or processing the stock market data. With message: ' + error.message + '. Stack:\n')
       console.error(error.stack)
     })
 }
@@ -147,4 +148,4 @@ function sliceIntoChunks (arr, chunkSize) {
 // Cron job for onTickCryptoExchange()
 const job = new CronJob(cfg.tickers.cron_time, onTickCryptoExchange, null, false, cfg.tickers.cron_timezone)
 job.start()
-console.log('INFO: Cron triggers scheduled for (upcoming 10 shown):\n - ' + job.nextDates(10).join('\n - '))
+console.info(Util.getCurrentDateTime() + ' - Cron triggers scheduled for (upcoming 10 shown):\n - ' + job.nextDates(10).join('\n - '))

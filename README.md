@@ -1,8 +1,8 @@
 # Crypto Alert Bot
 
-`crypto-bot` is an open-source bot that track some popular crypto tokens/coins (BTC, ETH, ADA, LINK, SOL, DOT, MATIC, ALGO and AVAX). The bot gives you a notification when the trend is changing (up/down trend).
+`crypto-bot` is an open-source bot that track some popular crypto tokens/coins (BTC, ETH, ADA, LINK, SOL, DOT, MATIC, ALGO, AVAX and VET). The bot gives you a notification when the trend is changing (up/down trend).
 
-This bot will be informed you via the [Telegram channel](https://t.me/crypto_exchange_updates) automatically, whenever there is an up- or downtrend in one of those crypto coins. Technical analysis is applied to determine the up- or downtrends (MACD/PPO).
+This bot will is already *running live* in the [following Telegram channel](https://t.me/crypto_exchange_updates), whenever there is an up- or downtrend you automatically get notified of each of the previously mentioned crypto coins. Technical analysis is applied to determine the up- or downtrends (based on MACD crosses of PPO indicator).
 
 ## Usage
 
@@ -47,6 +47,8 @@ Follow the steps:
 2. Change the configuration settings, webhook domain for Telegram bot and API keys for the stock data
 3. Install depedencies via: `npm install` (once needed)
 4. Start the bot using: `npm start`
+
+During development you could use: `npm run start-fake`. Which will start the app, but **not** connect to the TwelveData API.
 
 **Advice:** Run the bot 24/7 on some dedicated hardware. `cron_time` within the configuration will take care of the triggers when to look-up for data.
 

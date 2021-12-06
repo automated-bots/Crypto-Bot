@@ -34,9 +34,11 @@ class Communicate {
 
       if (fs.existsSync(tempFilePath)) {
         const data = this.readContent(tempFilePath)
+        // Check if the current MACD cross time is later than the previous stored time.
+        // If this is true, we found a new MACD cross on the PPO indicator! So let's send an update message.
         sendMessage = (currentTime > data.time)
       } else {
-        console.warn('WARN: Missing crypto temp file on disk (' + tempFilename + '). First run/trigger?')
+        console.warn(Util.getCurrentDateTime() + ' - WARN: Missing crypto temp file on disk (' + tempFilename + '). First run/trigger?')
         sendMessage = true // Always send a message the first time, if file does not yet exists.
       }
 
@@ -63,7 +65,7 @@ class Communicate {
             break
         }
         message += `\n\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high}. Low: ${low}. Close: ${close}. MACD cross date: ${dateString}.`
-        message += '\n\n[Open ' + symbolPair + ' chart (TradingView)](https://www.tradingview.com/chart?symbol=FTX:' + symbolURITradingView + ')'
+        message += '\n\n[Open ' + symbolPair + ' chart (TradingView)](https://www.tradingview.com/chart?symbol=Binance:' + symbolURITradingView + ')'
 
         this.sendTelegramMessage(message)
         messageSend = true // Only used for debug console message
@@ -74,7 +76,7 @@ class Communicate {
       }
     }
     if (messageSend === false) {
-      console.log('DEBUG: No new MACD crosses detected for ' + symbolPair + '. Do not send a message update.')
+      console.debug(Util.getCurrentDateTime() + ' - No new MACD crosses detected for ' + symbolPair + '. Don\'t send update.')
     }
   }
 
@@ -82,7 +84,7 @@ class Communicate {
    * Helper method for sending the message to Telegram bot
    */
   sendTelegramMessage (message) {
-    console.log('INFO: Try sending the following message to Telegram channel: ' + message)
+    console.info(Util.getCurrentDateTime() + ' - Sending message send to Telegram: ' + message)
 
     this.bot.sendMessage(this.botChatID, message, this.sendMessageOptions).catch(error => {
       console.error('ERROR: Could not send Telegram message: "' + message + '", due to error: ' + error.message)

@@ -36,11 +36,11 @@ class DataProcessor {
     let nrOfDataPoints = this.warmupPeriod + this.dataPeriod
     let firstIndexUsed = (values.length - 1) - (this.dataPeriod - 1)
     if (values.length < nrOfDataPoints) {
-      console.error('ERROR: Not enough data received from API for symbol: ' + data.symbol + '. Expected: ' + nrOfDataPoints + ' (' + this.warmupPeriod + '+' + this.dataPeriod + ') - Actual: ' + values.length)
+      console.error(Util.getCurrentDateTime() + ' - ERROR: Not enough data received from API for symbol: ' + data.symbol + '. Expected: ' + nrOfDataPoints + ' (' + this.warmupPeriod + '+' + this.dataPeriod + ') - Actual: ' + values.length)
       nrOfDataPoints = values.length
     }
     if (firstIndexUsed < 0) {
-      console.error('ERROR: Index of first used data point out-of-range for symbol: ' + data.symbol + '.')
+      console.error(Util.getCurrentDateTime() + ' - ERROR: Index of first used data point out-of-range for symbol: ' + data.symbol + '.')
       firstIndexUsed = 0
     }
     const lastDataPoints = values.slice(values.length - nrOfDataPoints, values.length)
@@ -50,6 +50,7 @@ class DataProcessor {
     // We could create a buffer of history of PPO,
     // or just save what we need for now: previous PPO histogram
     let previousPPO = null
+    console.log('VERBOSE: Symbol: ' + data.symbol + ' Start time: ' + startTimestamp + '(I:' + firstIndexUsed + ')')
     for (const tick of lastDataPoints) {
       // Update indicator based on close price
       ppo.update(tick.close)
@@ -66,6 +67,7 @@ class DataProcessor {
       }
 
       // Only check data after warming-up period
+      console.log('VERBOSE: Tick time: ' + tick.time)
       if (tick.time > startTimestamp) {
         // Check for MACD crosses
         if (previousPPO !== null) {
@@ -73,6 +75,7 @@ class DataProcessor {
           const bullish = Math.sign(previousPPO.hist) === -1 &&
             (Math.sign(currentPPO.hist) === 1 || Math.sign(currentPPO.hist) === 0)
           if (bullish) {
+            console.log('VERBOSE: Bull cross found!')
             crosses.push({
               type: 'bullish',
               close: tick.close,
@@ -88,6 +91,7 @@ class DataProcessor {
           const bearish = (Math.sign(previousPPO.hist) === 0 || Math.sign(previousPPO.hist) === 1) &&
             (Math.sign(currentPPO.hist) === -1)
           if (bearish) {
+            console.log('VERBOSE: Bear cross found!')
             crosses.push({
               type: 'bearish',
               close: tick.close,

@@ -22,6 +22,14 @@ class Util {
     }
     return n
   }
+
+  /**
+   * Return current date + time
+   * @returns Current date time string
+   */
+  static getCurrentDateTime () {
+    return new Date().toLocaleString('nl-NL')
+  }
 }
 
 module.exports = Util

@@ -9,8 +9,8 @@ telegram_settings:
   
 tickers:
   params:
-    crypto_symbols_pairs: [ "BTC/USD", "ETH/USD", "ADA/USD", "LINK/USD", "SOL/USD", "pDOTn/USD", "MATIC/USD", "ALGO/USD", "AVAX/USD" ]
-    exchange: "Binance" # Default timezone for Binance data is UTC (Coordinated Universal Time)
+    # Optionally you could provide the crypto exchange like so: BTC/USD:Huobi
+    crypto_symbols_pairs: [ "BTC/USD", "ETH/USD", "ADA/USD", "LINK/USD", "SOL/USD", "pDOTn/USD", "MATIC/USD", "ALGO/USD", "AVAX/USD", "VET/USD" ]
     interval: "1week"
     outputsize: 100
   cron_time: "0 15 * * * *" # Notation: Second-Minute-Hour-Day-Month-WeekDay. So, every hour at hh:15 hour, since crypto can be volatile. Keep the time between cron triggers above 10 mins to avoid API rate limit issues.
