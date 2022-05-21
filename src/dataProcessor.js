@@ -3,16 +3,17 @@ const Util = require('./util')
 const csv = require('fast-csv')
 const fs = require('fs')
 
-// Dump CSV debug data (true/false)
-const DEBUG = false
-
 class DataProcessor {
   /**
+   * @param {Boolean} verboseLogging Verbose logging enabled (=true)
+   * @param {Boolean} dumpCSV Dump data to CSV file?
    * @param {Number} warmupPeriod Warming-up period for crypto market data
    * @param {Number} dataPeriod Crypto market data data period used to be analysed
    * @param {Dict} indicatorsConfig Crypto market data technical indicators config
    */
-  constructor (warmupPeriod, dataPeriod, indicatorsConfig) {
+  constructor (verboseLogging, dumpCSV, warmupPeriod, dataPeriod, indicatorsConfig) {
+    this.verboseLogging = verboseLogging
+    this.dumpCSV = dumpCSV
     this.warmupPeriod = warmupPeriod
     this.dataPeriod = dataPeriod
     this.indicatorsConfig = indicatorsConfig
@@ -50,13 +51,15 @@ class DataProcessor {
     // We could create a buffer of history of PPO,
     // or just save what we need for now: previous PPO histogram
     let previousPPO = null
-    console.log('VERBOSE: Symbol: ' + data.symbol + ' Start time: ' + startTimestamp + '(I:' + firstIndexUsed + ')')
+    if (this.verboseLogging) {
+      console.log('VERBOSE: Symbol: ' + data.symbol + ' Start time: ' + startTimestamp + '(I:' + firstIndexUsed + ')')
+    }
     for (const tick of lastDataPoints) {
       // Update indicator based on close price
       ppo.update(tick.close)
       // Get latest values
       const currentPPO = ppo.getResult()
-      if (DEBUG) {
+      if (this.dumpCSV) {
         csvData.push({
           date: Util.dateToString(new Date(tick.time)),
           close: tick.close,
@@ -67,7 +70,9 @@ class DataProcessor {
       }
 
       // Only check data after warming-up period
-      console.log('VERBOSE: Tick time: ' + tick.time)
+      if (this.verboseLogging) {
+        console.log('VERBOSE: Tick time: ' + tick.time)
+      }
       if (tick.time > startTimestamp) {
         // Check for MACD crosses
         if (previousPPO !== null) {
@@ -75,7 +80,9 @@ class DataProcessor {
           const bullish = Math.sign(previousPPO.hist) === -1 &&
             (Math.sign(currentPPO.hist) === 1 || Math.sign(currentPPO.hist) === 0)
           if (bullish) {
-            console.log('VERBOSE: Bull cross found!')
+            if (this.verboseLogging) {
+              console.log('VERBOSE: Bull cross found!')
+            }
             crosses.push({
               type: 'bullish',
               close: tick.close,
@@ -91,7 +98,9 @@ class DataProcessor {
           const bearish = (Math.sign(previousPPO.hist) === 0 || Math.sign(previousPPO.hist) === 1) &&
             (Math.sign(currentPPO.hist) === -1)
           if (bearish) {
-            console.log('VERBOSE: Bear cross found!')
+            if (this.verboseLogging) {
+              console.log('VERBOSE: Bear cross found!')
+            }
             crosses.push({
               type: 'bearish',
               close: tick.close,
@@ -111,7 +120,7 @@ class DataProcessor {
     }
 
     // Dump verbose data to CSV file
-    if (DEBUG) {
+    if (this.dumpCSV) {
       const filename = 'debug_' + data.symbol.replace(/\//g, '_')
       const ws = fs.createWriteStream(filename + '.csv')
       csv.write(csvData, { headers: true }).pipe(ws)

@@ -1,3 +1,7 @@
+general_settings:
+  verbose: false # Enable debug logging to stdout?
+  dumpCSV: false # Dump data procesing data to CSV file?
+
 exchange_settings:
   use_cache: True # Put to False in production
   api_token: "" # TwelveData API Token

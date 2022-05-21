@@ -52,6 +52,8 @@ bot.setWebHook(`${cfg.telegram_settings.public_url}/bot${TELEGRAM_SECRET_HASH}`)
 // Create API Fetcher, data processor and communication instances
 const fetcher = new Fetcher(cfg.exchange_settings)
 const dataProcessor = new DataProcessor(
+  cfg.general_settings.verbose,
+  cfg.general_settings.dumpCSV,
   cfg.tickers.warmup_period,
   cfg.tickers.data_period,
   cfg.tickers.indicators)
