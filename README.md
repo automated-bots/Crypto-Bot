@@ -16,7 +16,7 @@ You can join the public [Crypto Exchange Alert Telegram channel](https://t.me/cr
 
 This bot is written in JavaScript and run on NodeJS.
 
-* [NodeJS 14 or higher](https://nodejs.org/en/download/)
+- [NodeJS 14 or higher](https://nodejs.org/en/download/)
 
 ### Docker
 
@@ -58,16 +58,16 @@ During development you could use: `npm run start-fake`. Which will start the app
 
 The following settings require definitely some attention during setup:
 
-* `exchange_settings -> use_cache` - Set to `False` to not use any local caching, needed for production!
-* `exchange_settings -> api_token` - API token of twelvedata - [Create a free API token on their website](https://twelvedata.com/apikey)
-* `telegram_settings -> bot_token` - Token from Telegram, created via [@BotFather](https://telegram.me/BotFather)
-* `telegram_settings -> public_url` - Telegram public URL for Webhook
-* `telegram_settings -> chat_id` - Telegram channel name including '@' or any other chat ID.
+- `exchange_settings -> use_cache` - Set to `False` to not use any local caching, needed for production!
+- `exchange_settings -> api_token` - API token of twelvedata - [Create a free API token on their website](https://twelvedata.com/apikey)
+- `telegram_settings -> bot_token` - Token from Telegram, created via [@BotFather](https://telegram.me/BotFather)
+- `telegram_settings -> public_url` - Telegram public URL for Webhook
+- `telegram_settings -> chat_id` - Telegram channel name including '@' or any other chat ID.
 
 There are also 2 environment variables available to set:
 
-* `HOST` (default: `0.0.0.0`)
-* `PORT` (default: `3010`)
+- `HOST` (default: `0.0.0.0`)
+- `PORT` (default: `3010`)
 
 ## License
 
