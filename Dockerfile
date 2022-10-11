@@ -1,4 +1,4 @@
-FROM node:lts-alpine
+FROM node:lts-slim
 ENV NODE_ENV production
 
 WORKDIR /app
