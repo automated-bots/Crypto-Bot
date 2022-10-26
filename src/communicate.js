@@ -11,8 +11,6 @@ class Communicate {
     this.botChatID = botChatID
     this.fatalError = false
     this.sendMessageOptions = { parse_mode: 'markdown', disable_web_page_preview: true }
-    // Notify channel about Bot booting-up (commented-out for now)
-    this.sendTelegramMessage('(Re)starting-up Bot... 🤓')
   }
 
   /**
