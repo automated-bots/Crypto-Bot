@@ -4,8 +4,13 @@ services:
     image: danger89/crypto-bot:latest
     container_name: crypto-bot
     restart: always
+    networks:
+      - crypto_bot_external_network
     volumes:
       - /home/username/folder/to/config.yml:/app/config.yml
       - /home/username/folder/to/tmp:/app/tmp
     ports:
       - "3010:3010"
+
+networks:
+  crypto_bot_external_network:
