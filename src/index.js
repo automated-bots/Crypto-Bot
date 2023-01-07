@@ -91,8 +91,8 @@ app.get('/health', (req, res) => {
 })
 
 // Simple ping command
-bot.onText(/\/ping/, () => {
-  bot.sendMessage(cfg.telegram_settings.chat_id, 'Pong').catch(error => {
+bot.onText(/\/ping/, (msg) => {
+  bot.sendMessage(msg.chat.id, 'Pong').catch(error => {
     console.error(Util.getCurrentDateTime() + ' - ERROR: Could not send pong message, due to error: ' + error.message)
     global.ErrorState = true
   })
