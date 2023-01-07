@@ -46,8 +46,16 @@ if (isFake) {
   }
 }
 
+bot.on('error', (error) => {
+  console.error(error)
+  global.ErrorState = true
+})
+
 // Inform the Telegram servers of the new webhook url
-bot.setWebHook(`${cfg.telegram_settings.public_url}/bot${TELEGRAM_SECRET_HASH}`)
+bot.setWebHook(`${cfg.telegram_settings.public_url}/bot${TELEGRAM_SECRET_HASH}`).catch((error) => {
+  console.error(error)
+  global.ErrorState = true
+})
 
 // Create API Fetcher, data processor and communication instances
 const fetcher = new Fetcher(cfg.exchange_settings)
@@ -78,16 +86,15 @@ app.get(`/test_api/${TEST_API_SECRET_HASH}/crypto`, (req, res) => {
 })
 
 app.get('/health', (req, res) => {
-  // Check if there are any issues with the communication layer
-  const isError = comm.isError()
-  const statusCode = (isError) ? 500 : 200
-  res.status(statusCode).json({ health_ok: !isError })
+  const statusCode = (global.ErrorState) ? 500 : 200
+  res.status(statusCode).json({ health_ok: !global.ErrorState })
 })
 
 // Simple ping command
 bot.onText(/\/ping/, () => {
   bot.sendMessage(cfg.telegram_settings.chat_id, 'Pong').catch(error => {
     console.error(Util.getCurrentDateTime() + ' - ERROR: Could not send pong message, due to error: ' + error.message)
+    global.ErrorState = true
   })
 })
 
