@@ -10,6 +10,8 @@ RUN npm install
 
 COPY . .
 
+USER node
+
 EXPOSE 3010
 
 HEALTHCHECK --interval=30s --timeout=12s --start-period=25s \
