@@ -1,14 +1,14 @@
 # Crypto Alert Bot
 
-`crypto-bot` is an open-source bot that track some popular crypto tokens/coins (BTC, ETH, ADA, LINK, SOL, DOT, MATIC, ALGO, AVAX and VET). The bot gives you a notification when the trend is changing (up/down trend).
+`crypto-bot` is an open-source bot that track some popular crypto tokens/coins (BTC, BCH, ETH, ADA, LINK, SOL, DOT, MATIC, ALGO, AVAX and VET). The bot gives you a notification when the trend is changing (up/down trend).
 
-This bot will is already *running live* in the [following Telegram channel](https://t.me/crypto_exchange_updates), whenever there is an up- or downtrend you automatically get notified of each of the previously mentioned crypto coins. Technical analysis is applied to determine the up- or downtrends (based on MACD crosses of PPO indicator).
+This bot will is already _running live_ in the [following Telegram channel](https://t.me/crypto_exchange_updates), whenever there is an up- or downtrend you automatically get notified of each of the previously mentioned crypto coins. Technical analysis is applied to determine the up- or downtrends (based on MACD crosses of PPO indicator).
 
 ## Usage
 
 You can join the public [Crypto Exchange Alert Telegram channel](https://t.me/crypto_exchange_updates), where this bot is present. And keeps you up-to-date!
 
-*Or* since this project is open-source, you can setup your own `crypto-bot` as well as your own [Telegram Bot](https://core.telegram.org/bots). See below.
+_Or_ since this project is open-source, you can setup your own `crypto-bot` as well as your own [Telegram Bot](https://core.telegram.org/bots). See below.
 
 ## Run it yourself
 
@@ -16,7 +16,7 @@ You can join the public [Crypto Exchange Alert Telegram channel](https://t.me/cr
 
 This bot is written in JavaScript and run on NodeJS.
 
-- [NodeJS 14 or higher](https://nodejs.org/en/download/)
+- [NodeJS 16 or higher](https://nodejs.org/en/download/)
 
 ### Docker
 
@@ -24,18 +24,18 @@ Use the [DockerHub Docker image](https://hub.docker.com/repository/docker/danger
 
 1. Copy/rename the [config template file](configTemplate.yml) to `config.yml`, can be stored anywhere on your machine:
 
-    ```sh
-    cp configTemplate.yml config.yml
-    ```
+   ```sh
+   cp configTemplate.yml config.yml
+   ```
 
 2. Now change the `config.yml` to your needs (see "Most important Settings" section below).
 3. Start Docker container by providing the `config.yml` from outside the Docker container (by default using current working directory, `pwd`, on your host machine):
 
-    ```sh
-    docker run --restart always -p 127.0.0.1:3010:3010 -v $(pwd)/config.yml:/app/config.yml -d danger89/crypto-bot
-    ```
+   ```sh
+   docker run --restart always -p 127.0.0.1:3010:3010 -v $(pwd)/config.yml:/app/config.yml -d danger89/crypto-bot
+   ```
 
-*Note:* The command above should pull the image automatically from Docker Hub.
+_Note:_ The command above should pull the image automatically from Docker Hub.
 
 You can also use `docker-compose`, see [docker-compose.yml](docker-compose.yml).
 

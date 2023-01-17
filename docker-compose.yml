@@ -10,7 +10,7 @@ services:
       - /home/username/folder/to/config.yml:/app/config.yml:ro
       - /home/username/folder/to/tmp:/app/tmp
     ports:
-      - "3010:3010"
+      - "127.0.0.1:3010:3010"
 
 networks:
   crypto_bot_external_network:
