@@ -68,6 +68,7 @@ const dataProcessor = new DataProcessor(
 const comm = new Communicate(bot, cfg.telegram_settings.chat_id)
 
 const app = express()
+app.disable('x-powered-by')
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
