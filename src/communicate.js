@@ -45,24 +45,24 @@ class Communicate {
         if (symbolPair.startsWith('pDOTn')) {
           symbolPair = 'DOT/USD'
         }
-        let message = '❗*Crypto Alert*❗\n ' + name + ' (' + symbolPair + ') changed in market trend: '
+        let message = '❗*Crypto Alert*❗\n ' + name + ' \\(' + symbolPair + '\\) changed in market trend: '
         const dateString = Util.dateToString(cross.time, true)
         const symbolURITradingView = symbolPair.replace(/\//g, '') // USD, only remove the slash
-        const histogram = cross.hist.toFixed(4)
-        const prevHistogram = cross.prevHist.toFixed(4)
-        const high = cross.high.toFixed(1)
-        const low = cross.low.toFixed(1)
-        const close = cross.close.toFixed(1)
+        const histogram = cross.hist.toFixed(4).toString().replace('.', '\\.').replace('-', '\\-')
+        const prevHistogram = cross.prevHist.toFixed(4).toString().replace('.', '\\.').replace('-', '\\-')
+        const high = cross.high.toFixed(1).toString().replace('.', '\\.')
+        const low = cross.low.toFixed(1).toString().replace('.', '\\.')
+        const close = cross.close.toFixed(1).toString().replace('.', '\\.')
         switch (cross.type) {
           case 'bearish':
-            message += 'towards a bearish trend 🧸. Don\'t forget to: Buy the dip.'
+            message += 'towards a bearish trend 🧸\\. Don\'t forget to: Buy the dip\\.'
             break
           case 'bullish':
-            message += 'towards a bullish trend 🚀. To the moon! Hodl.'
+            message += 'towards a bullish trend 🚀\\. To the moon\\! Hodl\\.'
             break
         }
-        message += `\n\nHistogram: ${histogram}% (before: ${prevHistogram}%). High: ${high}. Low: ${low}. Close: ${close}. MACD cross date: ${dateString}.`
-        message += '\n\n[Open ' + symbolPair + ' chart (TradingView)](https://www.tradingview.com/chart?symbol=Binance:' + symbolURITradingView + ')'
+        message += `\n\nHistogram: ${histogram}% \\(before: ${prevHistogram}%\\)\\. High: ${high}\\. Low: ${low}\\. Close: ${close}\\. MACD cross date: ${dateString}\\.`
+        message += '\n\n[Open ' + symbolPair + ' chart \\(TradingView\\)](https://www.tradingview.com/chart?symbol=Binance:' + symbolURITradingView + ')'
 
         this.sendTelegramMessage(message)
         messageSend = true // Only used for debug console message

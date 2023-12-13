@@ -5,8 +5,8 @@ class Util {
    * @param {boolean} onlyDate Only return date (without time)
    */
   static dateToString (date, onlyDate = false) {
-    let ret = date.getFullYear() + '-' +
-    Util.appendLeadingZeroes(date.getMonth() + 1) + '-' +
+    let ret = date.getFullYear() + '\\-' +
+    Util.appendLeadingZeroes(date.getMonth() + 1) + '\\-' +
     Util.appendLeadingZeroes(date.getDate())
     if (!onlyDate) {
       ret += ' ' +
@@ -28,7 +28,7 @@ class Util {
    * @returns Current date time string
    */
   static getCurrentDateTime () {
-    return new Date().toLocaleString('nl-NL')
+    return new Date().toLocaleString('nl-NL').replaceAll('-', '\\-')
   }
 }
 
