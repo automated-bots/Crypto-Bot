@@ -1,4 +1,3 @@
-
 /**
  * Candle helper class
  */
