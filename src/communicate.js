@@ -45,6 +45,8 @@ class Communicate {
         if (symbolPair.startsWith('pDOTn')) {
           symbolPair = 'DOT/USD'
         }
+        // Markdownv2 ready format
+        symbolPair = symbolPair.replaceAll('.', '\\.').replaceAll('-', '\\-').replaceAll('+', '\\+').replaceAll('_', '\\_')
         let message = '❗*Crypto Alert*❗\n ' + name + ' \\(' + symbolPair + '\\) changed in market trend: '
         const dateString = Util.dateToString(cross.time, true)
         const symbolURITradingView = symbolPair.replace(/\//g, '') // USD, only remove the slash
