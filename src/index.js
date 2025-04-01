@@ -17,7 +17,6 @@ const TEST_API_SECRET_HASH = crypto.randomBytes(40).toString('hex')
 const TelegramBot = require('node-telegram-bot-api')
 const express = require('express')
 const Communicate = require('./communicate')
-const Util = require('./util')
 const logger = require('./logger')
 const { version } = require('../package.json')
 
