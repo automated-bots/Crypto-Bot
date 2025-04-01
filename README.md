@@ -17,7 +17,22 @@ _Or_ since this project is open-source, you can setup your own `crypto-bot` as w
 This bot is written in JavaScript and run on NodeJS.
 
 - [NodeJS LTS](https://nodejs.org/en/download/)
-- pnpm
+- [pnpm](https://pnpm.io/)
+
+### Install prerequisites
+
+Node.js:
+
+```sh
+curl -sL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
+`pnpm` package manager:
+
+```sh
+curl -fsSL https://get.pnpm.io/install.sh | sh -
+```
 
 ### Docker
 
