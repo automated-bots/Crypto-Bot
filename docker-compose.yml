@@ -1,4 +1,3 @@
-version: "3"
 services:
   crypto-bot:
     image: registry.melroy.org/melroy/crypto-bot/crypto-bot:latest
