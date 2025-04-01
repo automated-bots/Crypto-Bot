@@ -37,6 +37,7 @@
     "express": "^5.1.0",
     "fast-csv": "^5.0.2",
     "node-telegram-bot-api": "^0.66.0",
+    "pino": "^9.6.0",
     "yaml": "^2.3.4"
   },
   "devDependencies": {
@@ -44,6 +45,7 @@
     "eslint-plugin-import": "^2.29.0",
     "eslint-plugin-n": "^17.17.0",
     "eslint-plugin-promise": "^7.2.1",
-    "neostandard": "^0.12.1"
+    "neostandard": "^0.12.1",
+    "pino-pretty": "^13.0.0"
   }
 }
