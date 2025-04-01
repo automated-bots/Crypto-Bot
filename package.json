@@ -3,6 +3,7 @@
   "version": "2.6.0",
   "description": "Crypto Bot coins/tokens Telegram notifier",
   "main": "src/index.js",
+  "packageManager": "pnpm@10.7.1",
   "scripts": {
     "start": "node .",
     "start-fake": "NODE_ENV=fake node .",
