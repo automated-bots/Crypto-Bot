@@ -38,12 +38,12 @@ class Fetcher {
     } else {
       const params = {
         symbol: symbolPairs.join(),
-        interval: interval,
+        interval,
         outputsize: outputSize,
         order: 'ASC',
         apikey: this.exchangeSettings.api_token
       }
-      const response = await this.api.get('/time_series', { params: params })
+      const response = await this.api.get('/time_series', { params })
       if (response.status !== 200) {
         return Promise.reject(new Error('Missing values key in response. HTTP status code: ' + response.status + ' with text : ' + response.statusText + '. Reponse:\n' + JSON.stringify(response.data)))
       }
@@ -84,7 +84,7 @@ class Fetcher {
           parseFloat(value.close), // Close
           new Date(value.datetime).getTime()) // Timestamp in ms since Epoch
       )
-      listSeries.push({ symbol: symbol, name: baseName, values: values })
+      listSeries.push({ symbol, name: baseName, values })
     }
 
     if (listSeries.length > 0 && this.exchangeSettings.use_cache) {

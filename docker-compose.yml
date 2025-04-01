@@ -1,7 +1,7 @@
 version: "3"
 services:
   crypto-bot:
-    image: danger89/crypto-bot:latest
+    image: registry.melroy.org/melroy/crypto-bot/crypto-bot:latest
     container_name: crypto-bot
     restart: always
     networks:

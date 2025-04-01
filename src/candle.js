@@ -12,7 +12,7 @@ class Candle {
    */
   static createIndex (O, H, L, C, time) {
     return {
-      time: time,
+      time,
       open: O,
       high: H,
       low: L,
@@ -32,13 +32,13 @@ class Candle {
    */
   static createStock (O, H, L, C, time, volume, trades) {
     return {
-      time: time,
+      time,
       open: O,
       high: H,
       low: L,
       close: C,
-      volume: volume,
-      trades: trades
+      volume,
+      trades
     }
   }
 }
