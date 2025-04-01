@@ -1,5 +1,4 @@
 general_settings:
-  verbose: false # Enable debug logging to stdout?
   dumpCSV: false # Dump data procesing data to CSV file?
 
 exchange_settings:

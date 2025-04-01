@@ -6,14 +6,12 @@ const logger = require('./logger')
 
 class DataProcessor {
   /**
-   * @param {Boolean} verboseLogging Verbose logging enabled (=true)
    * @param {Boolean} dumpCSV Dump data to CSV file?
    * @param {Number} warmupPeriod Warming-up period for crypto market data
    * @param {Number} dataPeriod Crypto market data data period used to be analysed
    * @param {Dict} indicatorsConfig Crypto market data technical indicators config
    */
-  constructor (verboseLogging, dumpCSV, warmupPeriod, dataPeriod, indicatorsConfig) {
-    this.verboseLogging = verboseLogging
+  constructor (dumpCSV, warmupPeriod, dataPeriod, indicatorsConfig) {
     this.dumpCSV = dumpCSV
     this.warmupPeriod = warmupPeriod
     this.dataPeriod = dataPeriod
@@ -38,11 +36,11 @@ class DataProcessor {
     let nrOfDataPoints = this.warmupPeriod + this.dataPeriod
     let firstIndexUsed = (values.length - 1) - (this.dataPeriod - 1)
     if (values.length < nrOfDataPoints) {
-      logger.error(Util.getCurrentDateTime() + ' - ERROR: Not enough data received from API for symbol: ' + data.symbol + '. Expected: ' + nrOfDataPoints + ' (' + this.warmupPeriod + '+' + this.dataPeriod + ') - Actual: ' + values.length)
+      logger.error('Not enough data received from API for symbol: ' + data.symbol + '. Expected: ' + nrOfDataPoints + ' (' + this.warmupPeriod + '+' + this.dataPeriod + ') - Actual: ' + values.length)
       nrOfDataPoints = values.length
     }
     if (firstIndexUsed < 0) {
-      logger.error(Util.getCurrentDateTime() + ' - ERROR: Index of first used data point out-of-range for symbol: ' + data.symbol + '.')
+      logger.error('Index of first used data point out-of-range for symbol: ' + data.symbol + '.')
       firstIndexUsed = 0
     }
     const lastDataPoints = values.slice(values.length - nrOfDataPoints, values.length)
@@ -52,9 +50,7 @@ class DataProcessor {
     // We could create a buffer of history of PPO,
     // or just save what we need for now: previous PPO histogram
     let previousPPO = null
-    if (this.verboseLogging) {
-      logger.info('VERBOSE: Symbol: ' + data.symbol + ' Start time: ' + startTimestamp + '(I:' + firstIndexUsed + ')')
-    }
+    logger.verbose('Symbol: ' + data.symbol + ' Start time: ' + startTimestamp + '(I:' + firstIndexUsed + ')')
     for (const tick of lastDataPoints) {
       // Update indicator based on close price
       ppo.update(tick.close)
@@ -71,9 +67,7 @@ class DataProcessor {
       }
 
       // Only check data after warming-up period
-      if (this.verboseLogging) {
-        logger.info('VERBOSE: Tick time: ' + tick.time)
-      }
+      logger.debug('Tick time: ' + tick.time)
       if (tick.time > startTimestamp) {
         // Check for MACD crosses
         if (previousPPO !== null) {
@@ -81,9 +75,7 @@ class DataProcessor {
           const bullish = Math.sign(previousPPO.hist) === -1 &&
             (Math.sign(currentPPO.hist) === 1 || Math.sign(currentPPO.hist) === 0)
           if (bullish) {
-            if (this.verboseLogging) {
-              logger.info('VERBOSE: Bull cross found!')
-            }
+            logger.debug('Bull cross found!')
             crosses.push({
               type: 'bullish',
               close: tick.close,
@@ -99,9 +91,7 @@ class DataProcessor {
           const bearish = (Math.sign(previousPPO.hist) === 0 || Math.sign(previousPPO.hist) === 1) &&
             (Math.sign(currentPPO.hist) === -1)
           if (bearish) {
-            if (this.verboseLogging) {
-              logger.info('VERBOSE: Bear cross found!')
-            }
+            logger.debug('Bear cross found!')
             crosses.push({
               type: 'bearish',
               close: tick.close,

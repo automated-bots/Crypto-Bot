@@ -61,7 +61,6 @@ bot.setWebHook(`${cfg.telegram_settings.public_url}/bot${TELEGRAM_SECRET_HASH}`)
 // Create API Fetcher, data processor and communication instances
 const fetcher = new Fetcher(cfg.exchange_settings)
 const dataProcessor = new DataProcessor(
-  cfg.general_settings.verbose,
   cfg.general_settings.dumpCSV,
   cfg.tickers.warmup_period,
   cfg.tickers.data_period,
@@ -95,14 +94,14 @@ app.get('/health', (req, res) => {
 // Simple ping command
 bot.onText(/\/ping/, (msg) => {
   bot.sendMessage(msg.chat.id, 'Pong').catch(error => {
-    logger.error(Util.getCurrentDateTime() + ' - ERROR: Could not send pong message, due to error: ' + error.message)
+    logger.error('Could not send pong message, due to error: ' + error.message)
     global.ErrorState = true
   })
 })
 
 // Start Express Server
 app.listen(port, host, () => {
-  logger.info(`${Util.getCurrentDateTime()} - Crypto Exchange Bot v${version} is now running on ${host} on port ${port}.`)
+  logger.info(`Crypto Exchange Bot v${version} is now running on ${host} on port ${port}.`)
 })
 
 /**
@@ -120,7 +119,7 @@ function fetchData (symbolPairs) {
       }
     })
     .catch(error => {
-      logger.error('Error: Something went wrong during getting or processing the stock market data. With message: ' + error.message + '. Stack:\n')
+      logger.error('Something went wrong during getting or processing the stock market data. With message: ' + error.message + '. Stack:\n')
       logger.error(error.stack)
     })
 }

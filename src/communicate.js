@@ -87,7 +87,7 @@ class Communicate {
     logger.info('Sending message send to Telegram: ' + message)
 
     this.bot.sendMessage(this.botChatID, message, this.sendMessageOptions).catch(error => {
-      logger.error('ERROR: Could not send Telegram message: "' + message + '", due to error: ' + error.message)
+      logger.error('Could not send Telegram message: "' + message + '", due to error: ' + error.message)
       global.ErrorState = true
     })
   }
