@@ -1,8 +1,8 @@
 # Config file
 config.yml
 
-scripts
 data
+scripts
 node_modules
 docker-compose.yml
 Dockerfile
@@ -19,5 +19,4 @@ debug_*.csv
 .gitignore
 .dockerignore
 .eslintrc.js
-.gitignore
 .gitlab-ci.yml
