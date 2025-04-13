@@ -50,7 +50,7 @@ class DataProcessor {
     // We could create a buffer of history of PPO,
     // or just save what we need for now: previous PPO histogram
     let previousPPO = null
-    logger.verbose('Symbol: ' + data.symbol + ' Start time: ' + startTimestamp + '(I:' + firstIndexUsed + ')')
+    logger.debug('Symbol: ' + data.symbol + ' Start time: ' + startTimestamp + '(I:' + firstIndexUsed + ')')
     for (const tick of lastDataPoints) {
       // Update indicator based on close price
       ppo.update(tick.close)
