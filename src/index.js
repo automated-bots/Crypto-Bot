@@ -36,7 +36,8 @@ logger.info('Current crypto coins will be tracked: ' + cfg.tickers.params.crypto
 const bot = (isFake) ? {} : new TelegramBot(cfg.telegram_settings.bot_token)
 // For testing purpose only
 if (isFake) {
-  bot.setWebHook = (url, options = {}, fileOptions = {}) => { }
+  bot.setWebHook = (url, options = {}, fileOptions = {}) => { return Promise.resolve() }
+  bot.on = (event, callback) => {}
   bot.onText = (regexp, callback) => {}
   bot.sendMessage = (chatId, text, form = {}) => {
     return new Promise(function (resolve, reject) {
@@ -101,26 +102,29 @@ bot.onText(/\/ping/, (msg) => {
 // Start Express Server
 app.listen(port, host, () => {
   logger.info(`Crypto Exchange Bot v${version} is now running on ${host} on port ${port}.`)
+  // Trigger on tick during fake mode after 5 seconds
+  if (isFake) {
+    logger.info('Triggering onTickCryptoExchange in 5 seconds...')
+    setTimeout(onTickCryptoExchange, 5000)
+  }
 })
 
 /**
  * Due to the 8 API/min rate limit, we need to call the API with time-outs
  * @param {Array} symbolPairs Crypto symbol pairs
  */
-function fetchData (symbolPairs) {
-  // Get Crypto data points for all crypto pairs at once
-  fetcher.getData(symbolPairs, cfg.tickers.params.interval, cfg.tickers.params.outputsize)
-    .then(dataList => {
-      // Loop over all the crypto symbols pairs
-      for (const data of dataList) {
-        const crosses = dataProcessor.processCryptoMarket(data)
-        comm.sendCryptoMarketUpdate(crosses, data.symbol, data.name)
-      }
-    })
-    .catch(error => {
-      logger.error('Something went wrong during getting or processing the stock market data. With message: ' + error.message + '. Stack:\n')
-      logger.error(error.stack)
-    })
+async function fetchData (symbolPairs) {
+  try {
+    // Get Crypto data points for all crypto pairs at once
+    const dataList = await fetcher.getData(symbolPairs, cfg.tickers.params.interval, cfg.tickers.params.outputsize)
+    // Loop over all the crypto symbols pairs
+    for (const data of dataList) {
+      const crosses = dataProcessor.processCryptoMarket(data)
+      comm.sendCryptoMarketUpdate(crosses, data.symbol, data.name)
+    }
+  } catch (error) {
+    logger.error(error, 'Something went wrong during getting or processing the crypto market data.')
+  }
 }
 
 /**
