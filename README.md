@@ -64,7 +64,7 @@ Follow the steps:
 3. Install depedencies via: `pnpm install` (once needed)
 4. Start the bot using: `pnpm start`
 
-During development you could use: `pnpm run start-fake`. Which will start the app, but **not** connect to the TwelveData API.
+During development you could use: `pnpm start-fake`. This starts the app, allows you to connect to TwelveData, but the Telegram bot object is stubbed (fake).
 
 **Advice:** Run the bot 24/7 on some dedicated hardware. `cron_time` within the configuration will take care of the triggers when to look-up for data.
 

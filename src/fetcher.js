@@ -67,13 +67,23 @@ class Fetcher {
     for (const symbol of symbolPairs) {
       let baseName, timeseries
       if (Object.prototype.hasOwnProperty.call(data, 'meta')) { // If time-series API is called with a single symbol parameter
+        if (data.status !== 'ok') {
+          return Promise.reject(new Error('Symbol ' + symbol + ' status is not ok in response received from API. Data dump:\n' + JSON.stringify(data)))
+        }
         baseName = (data.meta.currency_base).trim()
         timeseries = data.values
       } else if (Object.prototype.hasOwnProperty.call(data, symbol)) { // If time-series API is called with multiple symbols
-        baseName = (data[symbol].meta.currency_base).trim()
-        timeseries = data[symbol].values
+        const symbolData = data[symbol]
+        if (typeof symbolData === 'undefined' || symbolData === null) {
+          return Promise.reject(new Error('Symbol ' + symbol + ' data is null or undefined in response received from API. Data dump:\n' + JSON.stringify(data)))
+        }
+        if (symbolData.status !== 'ok') {
+          return Promise.reject(new Error('Symbol ' + symbol + ' status is not ok in response received from API. Data dump:\n' + JSON.stringify(data)))
+        }
+        baseName = (symbolData.meta.currency_base).trim()
+        timeseries = symbolData.values
       } else { // Not good
-        return Promise.reject(new Error('Symbol ' + symbol + ' could not be found in data received from API. Data dump:\n' + JSON.stringify(data, null, 2)))
+        return Promise.reject(new Error('Symbol ' + symbol + ' could not be found in data received from API. Data dump:\n' + JSON.stringify(data)))
       }
       // Constructing our time series objects
       const values = timeseries.map(value =>
