@@ -1,18 +1,18 @@
-const Indicator = require('./indicator')
-const EMA = require('./ema')
+import Indicator from './indicator.js'
+import EMA from './ema.js'
 
 /**
  * @class PPO
  * Percentage Price Oscillator (PPO), it's a percentage version of MACD
  */
-class PPO extends Indicator {
+export default class PPO extends Indicator {
   /**
-     * Create Percentage Price Oscillator (PPO) indicator
-     * @param {Number} shortLength - Short period length
-     * @param {Number} longLength - Long period length
-     * @param {Number} signalLength - Signal line period length over the PPO (eg. like 9)
-     */
-  constructor (shortLength, longLength, signalLength) {
+   * Create Percentage Price Oscillator (PPO) indicator
+   * @param {Number} shortLength - Short period length
+   * @param {Number} longLength - Long period length
+   * @param {Number} signalLength - Signal line period length over the PPO (eg. like 9)
+   */
+  constructor(shortLength, longLength, signalLength) {
     super()
     this.ppo = false
     this.short = new EMA(shortLength)
@@ -21,13 +21,13 @@ class PPO extends Indicator {
   }
 
   /**
-     * Update the PPO calculation:
-     *  PPO = ((shorter-period EMA − longer-period EMA)/long-period EMA) * 100
-     *  Signal = EMA of the PPO
-     *  Histogram/divergent = PPO - signal
-     * @param {Number} price - current price
-     */
-  update (price) {
+   * Update the PPO calculation:
+   *  PPO = ((shorter-period EMA − longer-period EMA)/long-period EMA) * 100
+   *  Signal = EMA of the PPO
+   *  Histogram/divergent = PPO - signal
+   * @param {Number} price - current price
+   */
+  update(price) {
     this.short.update(price)
     this.long.update(price)
     const short = this.short.getResult()
@@ -38,10 +38,10 @@ class PPO extends Indicator {
   }
 
   /**
-     * Get the latest results
-     * @return Return ppo, signal and histogram values with keys: 'ppo', 'signal' and 'hist'
-     */
-  getResult () {
+   * Get the latest results
+   * @return Return ppo, signal and histogram values with keys: 'ppo', 'signal' and 'hist'
+   */
+  getResult() {
     return {
       ppo: this.ppo,
       hist: this.hist,
@@ -49,5 +49,3 @@ class PPO extends Indicator {
     }
   }
 }
-
-module.exports = PPO

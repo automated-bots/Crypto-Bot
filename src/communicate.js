@@ -1,16 +1,19 @@
-const Util = require('./util')
-const fs = require('fs')
-const logger = require('./logger')
+import Util from './util.js'
+import fs from 'fs'
+import logger from './logger.js'
 
-class Communicate {
+export default class Communicate {
   /**
    * @param {Object} bot Telegram Bot Object
    * @param {Number} botChatID Chat ID number
    */
-  constructor (bot, botChatID) {
+  constructor(bot, botChatID) {
     this.bot = bot
     this.botChatID = botChatID
-    this.sendMessageOptions = { parse_mode: 'MarkdownV2', disable_web_page_preview: true }
+    this.sendMessageOptions = {
+      parse_mode: 'MarkdownV2',
+      disable_web_page_preview: true
+    }
   }
 
   /**
@@ -21,7 +24,7 @@ class Communicate {
    * @param {String} symbolPair Crypto market symbol pair
    * @param {String} name Full crypto name
    */
-  sendCryptoMarketUpdate (crosses, symbolPair, name) {
+  sendCryptoMarketUpdate(crosses, symbolPair, name) {
     let messageSend = false
     const tempFilename = 'tmp-' + symbolPair.replace(/\//g, '_') + '-data.json'
     const tempFilePath = `./tmp/${tempFilename}`
@@ -34,7 +37,7 @@ class Communicate {
         const data = this.readContent(tempFilePath)
         // Check if the current MACD cross time is later than the previous stored time.
         // If this is true, we found a new MACD cross on the PPO indicator! So let's send an update message.
-        sendMessage = (currentTime > data.time)
+        sendMessage = currentTime > data.time
       } else {
         logger.warn('WARN: Missing crypto temp file on disk (' + tempFilename + '). First run/trigger?')
         sendMessage = true // Always send a message the first time, if file does not yet exists.
@@ -58,14 +61,15 @@ class Communicate {
         const close = cross.close.toFixed(1).toString().replace('.', '\\.')
         switch (cross.type) {
           case 'bearish':
-            message += 'towards a bearish trend 🧸\\. Don\'t forget to: Buy the dip\\.'
+            message += "towards a bearish trend 🧸\\. Don't forget to: Buy the dip\\."
             break
           case 'bullish':
             message += 'towards a bullish trend 🚀\\. To the moon\\! Hodl\\.'
             break
         }
         message += `\n\nHistogram: ${histogram}% \\(before: ${prevHistogram}%\\)\\. High: ${high}\\. Low: ${low}\\. Close: ${close}\\. MACD cross date: ${dateString}\\.`
-        message += '\n\n[Open ' + symbolPair + ' chart \\(TradingView\\)](https://www.tradingview.com/chart?symbol=Binance:' + symbolURITradingView + ')'
+        message +=
+          '\n\n[Open ' + symbolPair + ' chart \\(TradingView\\)](https://www.tradingview.com/chart?symbol=Binance:' + symbolURITradingView + ')'
 
         this.sendTelegramMessage(message)
         messageSend = true // Only used for debugging towards pino logger
@@ -76,17 +80,17 @@ class Communicate {
       }
     }
     if (messageSend === false) {
-      logger.debug('No new MACD crosses detected for ' + symbolPair + '. Don\'t send update.')
+      logger.debug('No new MACD crosses detected for ' + symbolPair + ". Don't send update.")
     }
   }
 
   /**
    * Helper method for sending the message to Telegram bot
    */
-  sendTelegramMessage (message) {
+  sendTelegramMessage(message) {
     logger.info('Sending message send to Telegram: ' + message)
 
-    this.bot.sendMessage(this.botChatID, message, this.sendMessageOptions).catch(error => {
+    this.bot.sendMessage(this.botChatID, message, this.sendMessageOptions).catch((error) => {
       logger.error('Could not send Telegram message: "' + message + '", due to error: ' + error.message)
       global.ErrorState = true
     })
@@ -97,7 +101,7 @@ class Communicate {
    * @param {String} fileName file name
    * @returns content
    */
-  readContent (fileName) {
+  readContent(fileName) {
     try {
       const raw = fs.readFileSync(fileName)
       return JSON.parse(raw)
@@ -111,7 +115,7 @@ class Communicate {
    * @param {String} fileName file name
    * @param {Object} content data
    */
-  writeContent (fileName, content) {
+  writeContent(fileName, content) {
     const data = JSON.stringify(content)
     try {
       fs.writeFileSync(fileName, data)
@@ -120,5 +124,3 @@ class Communicate {
     }
   }
 }
-
-module.exports = Communicate

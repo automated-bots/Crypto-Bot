@@ -14,10 +14,13 @@ default:
 audit:
   stage: test
   script:
-    - pnpm audit
+    - pnpm audit --prod
   allow_failure: true
+  interruptible: true
 
-lint:
+format_lint:
   stage: test
   script:
+    - pnpm run format
     - pnpm run lint
+  interruptible: true

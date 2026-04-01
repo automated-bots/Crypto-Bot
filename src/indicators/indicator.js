@@ -2,10 +2,10 @@
  * @class Indicator
  * Indicator abstract base class (template)
  */
-class Indicator {
-  constructor () {
+export default class Indicator {
+  constructor() {
     if (this.constructor === Indicator) {
-      throw new TypeError('Abstract class can\'t be instantiated directly')
+      throw new TypeError("Abstract class can't be instantiated directly")
     }
 
     if (this.update === undefined) {
@@ -17,5 +17,3 @@ class Indicator {
     }
   }
 }
-
-module.exports = Indicator

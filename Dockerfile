@@ -15,7 +15,7 @@ USER node
 
 EXPOSE 3010
 
-HEALTHCHECK --interval=30s --timeout=12s --start-period=25s \
+HEALTHCHECK --interval=30s --timeout=12s --start-period=10s \
   CMD node healthcheck.js
 
 CMD ["pnpm", "start"]

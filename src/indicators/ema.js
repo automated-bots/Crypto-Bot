@@ -1,15 +1,15 @@
-const Indicator = require('./indicator')
+import Indicator from './indicator.js'
 
 /**
  * @class EMA
  * Exponential Moving Average Indicator
  */
-class EMA extends Indicator {
+export default class EMA extends Indicator {
   /**
    * Create EMA indicator
    * @param {Number} length - Window length for EMA
    */
-  constructor (length) {
+  constructor(length) {
     super()
     this.length = length
     this.result = false
@@ -21,7 +21,7 @@ class EMA extends Indicator {
    * Where t = today, y = yesterday, N = number of days in EMA, k = 2 / (N+1)
    * @param {Number} price - current price
    */
-  update (price) {
+  update(price) {
     // First time there is no previous result (using the current price)
     if (this.result === false) {
       this.result = price
@@ -38,9 +38,7 @@ class EMA extends Indicator {
    * Get the latest result
    * @return The EMA value
    */
-  getResult () {
+  getResult() {
     return this.result
   }
 }
-
-module.exports = EMA

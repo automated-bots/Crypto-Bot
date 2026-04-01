@@ -1,17 +1,17 @@
-const PPO = require('./indicators/ppo')
-const Util = require('./util')
-const csv = require('fast-csv')
-const fs = require('fs')
-const logger = require('./logger')
+import PPO from './indicators/ppo.js'
+import Util from './util.js'
+import csv from 'fast-csv'
+import fs from 'fs'
+import logger from './logger.js'
 
-class DataProcessor {
+export default class DataProcessor {
   /**
    * @param {Boolean} dumpCSV Dump data to CSV file?
    * @param {Number} warmupPeriod Warming-up period for crypto market data
    * @param {Number} dataPeriod Crypto market data data period used to be analysed
    * @param {Dict} indicatorsConfig Crypto market data technical indicators config
    */
-  constructor (dumpCSV, warmupPeriod, dataPeriod, indicatorsConfig) {
+  constructor(dumpCSV, warmupPeriod, dataPeriod, indicatorsConfig) {
     this.dumpCSV = dumpCSV
     this.warmupPeriod = warmupPeriod
     this.dataPeriod = dataPeriod
@@ -25,7 +25,7 @@ class DataProcessor {
    * @param {Array} data Market data timeserie values and symbol data
    * @returns Array of crosses
    */
-  processCryptoMarket (data) {
+  processCryptoMarket(data) {
     const crosses = []
     const csvData = []
     // Create technical indicator (Percentage Price Oscillator: PPO)
@@ -34,9 +34,20 @@ class DataProcessor {
     const values = data.values
     // Strip down the data series to just what is needed for warming-up fase + data period
     let nrOfDataPoints = this.warmupPeriod + this.dataPeriod
-    let firstIndexUsed = (values.length - 1) - (this.dataPeriod - 1)
+    let firstIndexUsed = values.length - 1 - (this.dataPeriod - 1)
     if (values.length < nrOfDataPoints) {
-      logger.error('Not enough data received from API for symbol: ' + data.symbol + '. Expected: ' + nrOfDataPoints + ' (' + this.warmupPeriod + '+' + this.dataPeriod + ') - Actual: ' + values.length)
+      logger.error(
+        'Not enough data received from API for symbol: ' +
+          data.symbol +
+          '. Expected: ' +
+          nrOfDataPoints +
+          ' (' +
+          this.warmupPeriod +
+          '+' +
+          this.dataPeriod +
+          ') - Actual: ' +
+          values.length
+      )
       nrOfDataPoints = values.length
     }
     if (firstIndexUsed < 0) {
@@ -72,8 +83,7 @@ class DataProcessor {
         // Check for MACD crosses
         if (previousPPO !== null) {
           // Fill-in the PPO (MACD) results
-          const bullish = Math.sign(previousPPO.hist) === -1 &&
-            (Math.sign(currentPPO.hist) === 1 || Math.sign(currentPPO.hist) === 0)
+          const bullish = Math.sign(previousPPO.hist) === -1 && (Math.sign(currentPPO.hist) === 1 || Math.sign(currentPPO.hist) === 0)
           if (bullish) {
             logger.debug('Bull cross found!')
             crosses.push({
@@ -88,8 +98,7 @@ class DataProcessor {
               time: new Date(tick.time)
             })
           }
-          const bearish = (Math.sign(previousPPO.hist) === 0 || Math.sign(previousPPO.hist) === 1) &&
-            (Math.sign(currentPPO.hist) === -1)
+          const bearish = (Math.sign(previousPPO.hist) === 0 || Math.sign(previousPPO.hist) === 1) && Math.sign(currentPPO.hist) === -1
           if (bearish) {
             logger.debug('Bear cross found!')
             crosses.push({
@@ -119,5 +128,3 @@ class DataProcessor {
     return crosses
   }
 }
-
-module.exports = DataProcessor

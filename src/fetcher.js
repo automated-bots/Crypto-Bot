@@ -1,12 +1,12 @@
-const axios = require('axios')
-const fs = require('fs')
-const Candle = require('./candle')
+import axios from 'axios'
+import fs from 'fs'
+import Candle from './candle.js'
 
 /**
  * History fetcher to get/load historical data
  */
-class Fetcher {
-  constructor (exchangeSettings) {
+export default class Fetcher {
+  constructor(exchangeSettings) {
     this.exchangeSettings = exchangeSettings
     // Twelve Data API
     this.api = axios.create({
@@ -22,11 +22,10 @@ class Fetcher {
    * @param {String} interval Interval period (eg. "1week")
    " @param {Number} outputSize Number of data points
    */
-  async getData (symbolPairs, interval, outputSize) {
+  async getData(symbolPairs, interval, outputSize) {
     const cacheFile = 'cachedData.json'
 
-    if (fs.existsSync('./' + cacheFile) &&
-      this.exchangeSettings.use_cache) {
+    if (fs.existsSync('./' + cacheFile) && this.exchangeSettings.use_cache) {
       // Use the local cached fille, rather than the API call.
       // However, keep it mind, it doesn't really care about the actual symbolPairs requested
       const data = fs.readFileSync('./' + cacheFile, 'utf8')
@@ -45,7 +44,16 @@ class Fetcher {
       }
       const response = await this.api.get('/time_series', { params })
       if (response.status !== 200) {
-        return Promise.reject(new Error('Missing values key in response. HTTP status code: ' + response.status + ' with text : ' + response.statusText + '. Reponse:\n' + JSON.stringify(response.data)))
+        return Promise.reject(
+          new Error(
+            'Missing values key in response. HTTP status code: ' +
+              response.status +
+              ' with text : ' +
+              response.statusText +
+              '. Reponse:\n' +
+              JSON.stringify(response.data)
+          )
+        )
       }
       return this.postProcessingTimeseries(symbolPairs, response.data, cacheFile)
     }
@@ -58,41 +66,52 @@ class Fetcher {
    * @param {String} cacheFile Filename store data to (if cache enabled)
    * @return Array of objects: {symbol: '', name: '', values: [] }
    */
-  postProcessingTimeseries (symbolPairs, data, cacheFile) {
+  postProcessingTimeseries(symbolPairs, data, cacheFile) {
     const listSeries = []
-    if (typeof (data) === 'undefined' || data === null) {
+    if (typeof data === 'undefined' || data === null) {
       return Promise.reject(new Error('Still empty data received from API'))
     }
 
     for (const symbol of symbolPairs) {
       let baseName, timeseries
-      if (Object.prototype.hasOwnProperty.call(data, 'meta')) { // If time-series API is called with a single symbol parameter
+      if (Object.prototype.hasOwnProperty.call(data, 'meta')) {
+        // If time-series API is called with a single symbol parameter
         if (data.status !== 'ok') {
-          return Promise.reject(new Error('Symbol ' + symbol + ' status is not ok in response received from API. Data dump:\n' + JSON.stringify(data)))
+          return Promise.reject(
+            new Error('Symbol ' + symbol + ' status is not ok in response received from API. Data dump:\n' + JSON.stringify(data))
+          )
         }
-        baseName = (data.meta.currency_base).trim()
+        baseName = data.meta.currency_base.trim()
         timeseries = data.values
-      } else if (Object.prototype.hasOwnProperty.call(data, symbol)) { // If time-series API is called with multiple symbols
+      } else if (Object.prototype.hasOwnProperty.call(data, symbol)) {
+        // If time-series API is called with multiple symbols
         const symbolData = data[symbol]
         if (typeof symbolData === 'undefined' || symbolData === null) {
-          return Promise.reject(new Error('Symbol ' + symbol + ' data is null or undefined in response received from API. Data dump:\n' + JSON.stringify(data)))
+          return Promise.reject(
+            new Error('Symbol ' + symbol + ' data is null or undefined in response received from API. Data dump:\n' + JSON.stringify(data))
+          )
         }
         if (symbolData.status !== 'ok') {
-          return Promise.reject(new Error('Symbol ' + symbol + ' status is not ok in response received from API. Data dump:\n' + JSON.stringify(data)))
+          return Promise.reject(
+            new Error('Symbol ' + symbol + ' status is not ok in response received from API. Data dump:\n' + JSON.stringify(data))
+          )
         }
-        baseName = (symbolData.meta.currency_base).trim()
+        baseName = symbolData.meta.currency_base.trim()
         timeseries = symbolData.values
-      } else { // Not good
+      } else {
+        // Not good
         return Promise.reject(new Error('Symbol ' + symbol + ' could not be found in data received from API. Data dump:\n' + JSON.stringify(data)))
       }
       // Constructing our time series objects
-      const values = timeseries.map(value =>
-        Candle.createIndex(
-          parseFloat(value.open), // Open
-          parseFloat(value.high), // High
-          parseFloat(value.low), // Low
-          parseFloat(value.close), // Close
-          new Date(value.datetime).getTime()) // Timestamp in ms since Epoch
+      const values = timeseries.map(
+        (value) =>
+          Candle.createIndex(
+            parseFloat(value.open), // Open
+            parseFloat(value.high), // High
+            parseFloat(value.low), // Low
+            parseFloat(value.close), // Close
+            new Date(value.datetime).getTime()
+          ) // Timestamp in ms since Epoch
       )
       listSeries.push({ symbol, name: baseName, values })
     }
@@ -105,5 +124,3 @@ class Fetcher {
     return listSeries
   }
 }
-
-module.exports = Fetcher

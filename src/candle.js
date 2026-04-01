@@ -1,7 +1,7 @@
 /**
  * Candle helper class
  */
-class Candle {
+export default class Candle {
   /**
    * Create an index candle
    * @param {number} O - Open
@@ -10,7 +10,7 @@ class Candle {
    * @param {number} C - Close
    * @param {number} time - Datetime
    */
-  static createIndex (O, H, L, C, time) {
+  static createIndex(O, H, L, C, time) {
     return {
       time,
       open: O,
@@ -30,7 +30,7 @@ class Candle {
    * @param {number} volume
    * @param {number} trades
    */
-  static createStock (O, H, L, C, time, volume, trades) {
+  static createStock(O, H, L, C, time, volume, trades) {
     return {
       time,
       open: O,
@@ -42,5 +42,3 @@ class Candle {
     }
   }
 }
-
-module.exports = Candle

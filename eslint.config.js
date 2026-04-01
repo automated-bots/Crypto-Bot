@@ -1,3 +1,12 @@
-'use strict'
+import neostandard from 'neostandard'
+import eslintConfigPrettier from 'eslint-config-prettier/flat'
 
-module.exports = require('neostandard')({})
+export default [
+  ...neostandard(),
+  {
+    rules: {
+      'object-shorthand': 'off'
+    }
+  },
+  eslintConfigPrettier
+]

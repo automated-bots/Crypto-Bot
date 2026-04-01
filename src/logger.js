@@ -1,5 +1,4 @@
-const pino = require('pino')
-
+import pino from 'pino'
 const NODE_ENV = process.env.NODE_ENV || 'development'
 
 const envToLogger = {
@@ -20,10 +19,8 @@ const envToLogger = {
         return { level: label }
       }
     },
-    timestamp: pino.stdTimeFunctions.isoTime,
+    timestamp: pino.stdTimeFunctions.isoTime
   }
 }
 
-module.exports = pino(
-  envToLogger[NODE_ENV]
-)
+export default pino(envToLogger[NODE_ENV])

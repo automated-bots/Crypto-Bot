@@ -6,19 +6,18 @@ const port = process.env.PORT || 3010
 const host = process.env.HOST || '0.0.0.0'
 const isFake = process.env.NODE_ENV === 'fake'
 
-const fs = require('fs')
-const YAML = require('yaml')
-const Fetcher = require('./fetcher')
-const DataProcessor = require('./dataProcessor')
-const CronJob = require('cron').CronJob
-const crypto = require('crypto')
+import fs from 'fs'
+import YAML from 'yaml'
+import Fetcher from './fetcher.js'
+import DataProcessor from './dataProcessor.js'
+import { CronJob } from 'cron'
+import crypto from 'crypto'
 const TELEGRAM_SECRET_HASH = crypto.randomBytes(20).toString('hex')
 const TEST_API_SECRET_HASH = crypto.randomBytes(40).toString('hex')
-const TelegramBot = require('node-telegram-bot-api')
-const express = require('express')
-const Communicate = require('./communicate')
-const logger = require('./logger')
-const { version } = require('../package.json')
+import TelegramBot from 'node-telegram-bot-api'
+import express from 'express'
+import Communicate from './communicate.js'
+import logger from './logger.js'
 
 const cfg = YAML.parse(fs.readFileSync('config.yml', 'utf8').toString())
 if (!cfg) {
@@ -33,10 +32,12 @@ logger.info('Current test API hash: ' + TEST_API_SECRET_HASH)
 logger.info('Current crypto coins will be tracked: ' + cfg.tickers.params.crypto_symbols_pairs)
 
 // Setup Telegram bot
-const bot = (isFake) ? {} : new TelegramBot(cfg.telegram_settings.bot_token)
+const bot = isFake ? {} : new TelegramBot(cfg.telegram_settings.bot_token)
 // For testing purpose only
 if (isFake) {
-  bot.setWebHook = (url, options = {}, fileOptions = {}) => { return Promise.resolve() }
+  bot.setWebHook = (url, options = {}, fileOptions = {}) => {
+    return Promise.resolve()
+  }
   bot.on = (event, callback) => {}
   bot.onText = (regexp, callback) => {}
   bot.sendMessage = (chatId, text, form = {}) => {
@@ -60,11 +61,7 @@ bot.setWebHook(`${cfg.telegram_settings.public_url}/bot${TELEGRAM_SECRET_HASH}`)
 
 // Create API Fetcher, data processor and communication instances
 const fetcher = new Fetcher(cfg.exchange_settings)
-const dataProcessor = new DataProcessor(
-  cfg.general_settings.dumpCSV,
-  cfg.tickers.warmup_period,
-  cfg.tickers.data_period,
-  cfg.tickers.indicators)
+const dataProcessor = new DataProcessor(cfg.general_settings.dumpCSV, cfg.tickers.warmup_period, cfg.tickers.data_period, cfg.tickers.indicators)
 const comm = new Communicate(bot, cfg.telegram_settings.chat_id)
 
 const app = express()
@@ -77,8 +74,8 @@ app.post(`/bot${TELEGRAM_SECRET_HASH}`, (req, res) => {
   bot.processUpdate(req.body)
   res.sendStatus(200)
 })
-// Display version
-app.get('/', (req, res) => res.send('<h1>Crypto Alert bot</h1> Crypto alert bot v' + version + '. <br/><br/>By: Melroy van den Berg'))
+
+app.get('/', (req, res) => res.send('<h1>Crypto Alert bot</h1> Crypto alert bot. <br/><br/>By: Melroy van den Berg'))
 
 // Test APIs
 app.get(`/test_api/${TEST_API_SECRET_HASH}/crypto`, (req, res) => {
@@ -87,13 +84,13 @@ app.get(`/test_api/${TEST_API_SECRET_HASH}/crypto`, (req, res) => {
 })
 
 app.get('/health', (req, res) => {
-  const statusCode = (global.ErrorState) ? 500 : 200
+  const statusCode = global.ErrorState ? 500 : 200
   res.status(statusCode).json({ health_ok: !global.ErrorState })
 })
 
 // Simple ping command
 bot.onText(/\/ping/, (msg) => {
-  bot.sendMessage(msg.chat.id, 'Pong').catch(error => {
+  bot.sendMessage(msg.chat.id, 'Pong').catch((error) => {
     logger.error('Could not send pong message, due to error: ' + error.message)
     global.ErrorState = true
   })
@@ -101,7 +98,7 @@ bot.onText(/\/ping/, (msg) => {
 
 // Start Express Server
 app.listen(port, host, () => {
-  logger.info(`Crypto Exchange Bot v${version} is now running on ${host} on port ${port}.`)
+  logger.info(`Crypto Exchange Bot is now running on ${host} on port ${port}.`)
   // Trigger on tick during fake mode after 5 seconds
   if (isFake) {
     logger.info('Triggering onTickCryptoExchange in 5 seconds...')
@@ -113,7 +110,7 @@ app.listen(port, host, () => {
  * Due to the 8 API/min rate limit, we need to call the API with time-outs
  * @param {Array} symbolPairs Crypto symbol pairs
  */
-async function fetchData (symbolPairs) {
+async function fetchData(symbolPairs) {
   try {
     // Get Crypto data points for all crypto pairs at once
     const dataList = await fetcher.getData(symbolPairs, cfg.tickers.params.interval, cfg.tickers.params.outputsize)
@@ -131,7 +128,7 @@ async function fetchData (symbolPairs) {
  * Trigger for cron job,
  * with a maximum of 8 symbol pairs/min. rate limition due to our free API account.
  */
-function onTickCryptoExchange () {
+function onTickCryptoExchange() {
   const symbols = cfg.tickers.params.crypto_symbols_pairs
   // We will split the crypto symbol pairs in chunks of 8,
   // so we do not hit the API req limit of 8 API calls/min.
@@ -140,7 +137,7 @@ function onTickCryptoExchange () {
   let timeout = 0
   for (const symbolPairs of symbolsChunks) {
     // Immediately Invoked Function Expression workaround so we can use the setTimeout inside a for loop in JS
-    (function (symbolPairs, timeout) {
+    ;(function (symbolPairs, timeout) {
       setTimeout(fetchData, timeout, symbolPairs)
     })(symbolPairs, timeout)
 
@@ -149,7 +146,7 @@ function onTickCryptoExchange () {
   }
 }
 
-function sliceIntoChunks (arr, chunkSize) {
+function sliceIntoChunks(arr, chunkSize) {
   const res = []
   for (let i = 0; i < arr.length; i += chunkSize) {
     const chunk = arr.slice(i, i + chunkSize)
