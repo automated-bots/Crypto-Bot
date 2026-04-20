@@ -53,7 +53,7 @@ export default class Communicate {
         symbolPair = symbolPair.replaceAll('.', '\\.').replaceAll('-', '\\-').replaceAll('+', '\\+').replaceAll('_', '\\_')
         let message = '❗*Crypto Alert*❗\n ' + name + ' \\(' + symbolPair + '\\) changed in market trend: '
         const dateString = Util.dateToString(cross.time, true)
-        const symbolURITradingView = symbolPair.replace(/\//g, '') // USD, only remove the slash
+        const symbolURITradingView = this.getTradingViewSymbol(symbolPair)
         const histogram = cross.hist.toFixed(4).toString().replace('.', '\\.').replace('-', '\\-')
         const prevHistogram = cross.prevHist.toFixed(4).toString().replace('.', '\\.').replace('-', '\\-')
         const high = cross.high.toFixed(1).toString().replace('.', '\\.')
@@ -82,6 +82,50 @@ export default class Communicate {
     if (messageSend === false) {
       logger.debug('No new MACD crosses detected for ' + symbolPair + ". Don't send update.")
     }
+  }
+
+  /**
+   * Get TradingView symbol for Binance.
+   * To ensure the symbol is correct for TradingView, we need to map the symbol pair to the TradingView symbol using the Binance exchange symbol.
+   *
+   * @param {String} symbolPair - Crypto symbol pair (e.g., 'BCH/USD')
+   * @returns {String} TradingView symbol (e.g., 'BCHUSD')
+   */
+  getTradingViewSymbol(symbolPair) {
+    const symbolMap = {
+      'BTC/USD': 'BTCUSD',
+      'ETH/USD': 'ETHUSD',
+      'ADA/USD': 'ADAUSD',
+      'BCH/USD': 'BCHUSD',
+      'LINK/USD': 'LINKUSD',
+      'SOL/USD': 'SOLUSD',
+      'DOT/USD': 'DOTUSD',
+      'POL/USD': 'POLUSD',
+      'ALGO/USD': 'ALGOUSD',
+      'AVAX/USD': 'AVAXUSD',
+      'VET/USD': 'VETUSDT',
+      'BNB/USD': 'BNBUSD',
+      'XRP/USD': 'XRPUSD',
+      'LTC/USD': 'LTCUSD',
+      'DOGE/USD': 'DOGEUSD',
+      'SHIB/USD': 'SHIBUSDT',
+      'ATOM/USD': 'ATOMUSD',
+      'TRX/USD': 'TRXUSD',
+      'UNI/USD': 'UNIUSD',
+      'FIL/USD': 'FILUSD',
+      'AAVE/USD': 'AAVEUSD',
+      'SAND/USD': 'SANDUSDT',
+      'MANA/USD': 'MANAUSDT',
+      'GRT/USD': 'GRTUSDT',
+      'ENJ/USD': 'ENJUSDT',
+      'SUSHI/USD': 'SUSHIUSDT',
+      'YFI/USD': 'YFIUSDT',
+      '1INCH/USD': '1INCHUSD',
+      'RUNE/USD': 'RUNEUSD'
+    }
+
+    // Fallback to original symbol (minus the slash) if not found in map
+    return Object.prototype.hasOwnProperty.call(symbolMap, symbolPair) ? symbolMap[symbolPair] : symbolPair.replace(/\//g, '')
   }
 
   /**
