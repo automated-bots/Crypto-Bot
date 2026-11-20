@@ -4,7 +4,7 @@ import logger from './logger.js'
 
 export default class Communicate {
   /**
-   * @param {Object} bot Telegram Bot Object
+   * @param {Object} bot Telegram API client
    * @param {Number} botChatID Chat ID number
    */
   constructor(bot, botChatID) {
@@ -12,7 +12,7 @@ export default class Communicate {
     this.botChatID = botChatID
     this.sendMessageOptions = {
       parse_mode: 'MarkdownV2',
-      disable_web_page_preview: true
+      link_preview_options: { is_disabled: true }
     }
   }
 
@@ -134,7 +134,7 @@ export default class Communicate {
   sendTelegramMessage(message) {
     logger.info('Sending message send to Telegram: ' + message)
 
-    this.bot.sendMessage(this.botChatID, message, this.sendMessageOptions).catch((error) => {
+    this.bot.sendMessage({ chat_id: this.botChatID, text: message, ...this.sendMessageOptions }).catch((error) => {
       logger.error('Could not send Telegram message: "' + message + '", due to error: ' + error.message)
       global.ErrorState = true
     })

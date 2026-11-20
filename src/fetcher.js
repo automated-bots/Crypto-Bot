@@ -1,4 +1,3 @@
-import axios from 'axios'
 import fs from 'fs'
 import Candle from './candle.js'
 
@@ -8,15 +7,10 @@ import Candle from './candle.js'
 export default class Fetcher {
   constructor(exchangeSettings) {
     this.exchangeSettings = exchangeSettings
-    // Twelve Data API
-    this.api = axios.create({
-      baseURL: 'https://api.twelvedata.com',
-      timeout: 10000
-    })
   }
 
   /**
-   * Get historical information from Alpha Vantage API
+   * Get historical information from Twelve Data
    *
    * @param {Array} symbolPairs List of crypto symbols (max. 8 at a time, to avoid the rate limit)
    * @param {String} interval Interval period (eg. "1week")
@@ -42,20 +36,14 @@ export default class Fetcher {
         order: 'ASC',
         apikey: this.exchangeSettings.api_token
       }
-      const response = await this.api.get('/time_series', { params })
+      const url = new URL('https://api.twelvedata.com/time_series')
+      url.search = new URLSearchParams(Object.entries(params).filter(([, value]) => value != null))
+      const response = await fetch(url, { signal: AbortSignal.timeout(10000) })
       if (response.status !== 200) {
-        return Promise.reject(
-          new Error(
-            'Missing values key in response. HTTP status code: ' +
-              response.status +
-              ' with text : ' +
-              response.statusText +
-              '. Reponse:\n' +
-              JSON.stringify(response.data)
-          )
-        )
+        await response.body?.cancel()
+        throw new Error('Twelve Data request failed with HTTP ' + response.status)
       }
-      return this.postProcessingTimeseries(symbolPairs, response.data, cacheFile)
+      return this.postProcessingTimeseries(symbolPairs, await response.json(), cacheFile)
     }
   }
 

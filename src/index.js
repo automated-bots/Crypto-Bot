@@ -1,6 +1,3 @@
-// NTBA = node-telegram-bot-api fixes
-process.env.NTBA_FIX_319 = 1
-process.env.NTBA_FIX_350 = 1
 // Constants
 const port = process.env.PORT || 3010
 const host = process.env.HOST || '0.0.0.0'
@@ -14,7 +11,7 @@ import { CronJob } from 'cron'
 import crypto from 'crypto'
 const TELEGRAM_SECRET_HASH = crypto.randomBytes(20).toString('hex')
 const TEST_API_SECRET_HASH = crypto.randomBytes(40).toString('hex')
-import TelegramBot from 'node-telegram-bot-api'
+import { Bot } from 'node-telegram-bot-api'
 import express from 'express'
 import Communicate from './communicate.js'
 import logger from './logger.js'
@@ -32,29 +29,22 @@ logger.info('Current test API hash: ' + TEST_API_SECRET_HASH)
 logger.info('Current crypto coins will be tracked: ' + cfg.tickers.params.crypto_symbols_pairs)
 
 // Setup Telegram bot
-const bot = isFake ? {} : new TelegramBot(cfg.telegram_settings.bot_token)
-// For testing purpose only
+const bot = new Bot(cfg.telegram_settings.bot_token || (isFake ? 'fake-token' : ''))
 if (isFake) {
-  bot.setWebHook = (url, options = {}, fileOptions = {}) => {
-    return Promise.resolve()
-  }
-  bot.on = (event, callback) => {}
-  bot.onText = (regexp, callback) => {}
-  bot.sendMessage = (chatId, text, form = {}) => {
-    return new Promise(function (resolve, reject) {
-      logger.info('Send messaged (just a drill)! Chat ID: ' + chatId + ' with message: ' + text)
-      resolve()
-    })
+  bot.api.setWebhook = async () => true
+  bot.api.getMe = async () => ({ id: 0, is_bot: true, first_name: 'Fake bot' })
+  bot.api.sendMessage = async ({ chat_id: chatId, text }) => {
+    logger.info('Send message (just a drill)! Chat ID: ' + chatId + ' with message: ' + text)
   }
 }
 
-bot.on('error', (error) => {
+bot.catch((error) => {
   logger.error(error)
   global.ErrorState = true
 })
 
 // Inform the Telegram servers of the new webhook url
-bot.setWebHook(`${cfg.telegram_settings.public_url}/bot${TELEGRAM_SECRET_HASH}`).catch((error) => {
+bot.api.setWebhook({ url: `${cfg.telegram_settings.public_url}/bot${TELEGRAM_SECRET_HASH}` }).catch((error) => {
   logger.error(error)
   global.ErrorState = true
 })
@@ -62,7 +52,7 @@ bot.setWebHook(`${cfg.telegram_settings.public_url}/bot${TELEGRAM_SECRET_HASH}`)
 // Create API Fetcher, data processor and communication instances
 const fetcher = new Fetcher(cfg.exchange_settings)
 const dataProcessor = new DataProcessor(cfg.general_settings.dumpCSV, cfg.tickers.warmup_period, cfg.tickers.data_period, cfg.tickers.indicators)
-const comm = new Communicate(bot, cfg.telegram_settings.chat_id)
+const comm = new Communicate(bot.api, cfg.telegram_settings.chat_id)
 
 const app = express()
 app.disable('x-powered-by')
@@ -70,8 +60,8 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
 // Receive Telegram updates
-app.post(`/bot${TELEGRAM_SECRET_HASH}`, (req, res) => {
-  bot.processUpdate(req.body)
+app.post(`/bot${TELEGRAM_SECRET_HASH}`, async (req, res) => {
+  await bot.handleUpdate(req.body)
   res.sendStatus(200)
 })
 
@@ -89,8 +79,8 @@ app.get('/health', (req, res) => {
 })
 
 // Simple ping command
-bot.onText(/\/ping/, (msg) => {
-  bot.sendMessage(msg.chat.id, 'Pong').catch((error) => {
+bot.hears(/\/ping/, async (ctx) => {
+  await ctx.reply('Pong').catch((error) => {
     logger.error('Could not send pong message, due to error: ' + error.message)
     global.ErrorState = true
   })
